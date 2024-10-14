@@ -11,7 +11,7 @@ import io.wongaz.tournamentplanner.matchmaking.NoEloNoRematchRule
 import kotlin.random.Random
 
 class SwissFormatScheduler (
-    val endCondition: Int,
+    private val endCondition: Int,
     private val teams: List<Team>,
     private val seed: Random){
 

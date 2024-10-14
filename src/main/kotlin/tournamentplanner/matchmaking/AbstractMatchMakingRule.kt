@@ -32,7 +32,7 @@ abstract class AbstractMatchMakingRule(val seed: Random, val matchFactory: Match
 
     abstract fun removeMatches(tournamentGraph: TournamentGraph, teams: List<Team>)
     abstract fun updateWeights(tournamentGraph: TournamentGraph, teams: List<Team>)
-    abstract fun unblock(tournamentGraph: TournamentGraph, teams: List<Team>):
+    abstract fun unblock(tournamentGraph: TournamentGraph, teams: List<Team>)
 
     fun removeRematches(tGraph: TournamentGraph, teams: List<Team>){
         for(team in teams){

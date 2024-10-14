@@ -1,4 +1,4 @@
-package io.wongaz.model
+package io.wongaz.model.core
 
 class WinLossRecord(private val wins: Short, private val loss: Short){
     fun getWins(): Short{

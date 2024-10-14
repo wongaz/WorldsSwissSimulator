@@ -1,6 +1,6 @@
 package io.wongaz.matchsimulation
 
-import io.wongaz.model.Team
+import io.wongaz.model.core.Team
 import kotlin.math.pow
 import kotlin.random.Random
 

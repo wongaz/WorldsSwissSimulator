@@ -1,4 +1,4 @@
-package io.wongaz.model
+package io.wongaz.model.core
 
 enum class Category {
     EASTERN,

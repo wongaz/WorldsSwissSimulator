@@ -1,8 +1,8 @@
 package io.wongaz.tournamentplanner.matchmaking
 
-import io.wongaz.model.Match
-import io.wongaz.model.MatchFactory
-import io.wongaz.model.Team
+import io.wongaz.model.core.Match
+import io.wongaz.model.core.factory.MatchFactory
+import io.wongaz.model.core.Team
 import kotlin.random.Random
 
 class PurelyRandom(val seed: Random, val matchFactory: MatchFactory): IMatchMakingRules {

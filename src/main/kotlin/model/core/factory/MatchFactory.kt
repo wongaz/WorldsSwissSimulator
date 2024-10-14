@@ -1,9 +1,11 @@
-package io.wongaz.model
+package io.wongaz.model.core.factory
 
 import io.wongaz.matchsimulation.IGameSimulation
+import io.wongaz.model.core.Match
+import io.wongaz.model.core.Team
 
 class MatchFactory(private val simulation: IGameSimulation) {
-    fun buildMatch(t1: Team, t2: Team, ft: Int): Match{
+    fun buildMatch(t1: Team, t2: Team, ft: Int): Match {
         return Match(
             team1 = t1,
             team2 = t2,

@@ -2,7 +2,7 @@ package io.wongaz
 
 import io.wongaz.loader.TeamLoaderManager
 import io.wongaz.matchsimulation.PureEloSimulation
-import io.wongaz.model.Match
+import io.wongaz.model.core.Match
 import kotlin.random.Random
 
 fun main() {

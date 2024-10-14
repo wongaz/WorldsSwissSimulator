@@ -2,10 +2,9 @@ package io.wongaz.tournamentplanner
 
 import io.wongaz.matchsimulation.IGameSimulation
 import io.wongaz.matchsimulation.PureEloSimulation
-import io.wongaz.model.Match
-import io.wongaz.model.MatchFactory
-import io.wongaz.model.Round
-import io.wongaz.model.Team
+import io.wongaz.model.core.factory.MatchFactory
+import io.wongaz.model.core.Round
+import io.wongaz.model.core.Team
 import io.wongaz.tournamentplanner.matchmaking.IMatchMakingRules
 import io.wongaz.tournamentplanner.matchmaking.NoEloNoRematchRule
 import kotlin.random.Random

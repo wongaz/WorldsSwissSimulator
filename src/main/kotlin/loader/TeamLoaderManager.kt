@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import io.wongaz.model.LoadedTeams
-import io.wongaz.model.Team
+import io.wongaz.model.loader.LoadedTeams
+import io.wongaz.model.core.Team
 import java.io.InputStream
 
 class TeamLoaderManager() {

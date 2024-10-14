@@ -1,3 +1,3 @@
-package io.wongaz.model
+package io.wongaz.model.core
 
 data class Pool(val matches: List<Match>)

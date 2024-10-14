@@ -1,4 +1,4 @@
-package io.wongaz.model
+package io.wongaz.model.core
 
 import io.wongaz.matchsimulation.IGameSimulation
 
@@ -26,7 +26,7 @@ class Match(val team1: Team,
         } while(teamWin1 != firstTo && teamWin2 != firstTo)
     }
 
-    fun getOtherTeam(team:Team): Team{
+    fun getOtherTeam(team: Team): Team {
         if (this.team1.teamSignature == team.teamSignature) {
             return team2
         }

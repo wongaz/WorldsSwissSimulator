@@ -36,4 +36,8 @@ data class Team(
         }
         return false
     }
+
+    fun equalsWinLoss(winLossRecord: WinLossRecord): Boolean{
+        return winningMatches.size == winLossRecord.getWins() && winLossRecord.getLoss() == lossMatches.size
+    }
 }

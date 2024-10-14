@@ -29,11 +29,12 @@ class SwissFormatScheduler (
 
     fun runTournament(){
         for (i in 0..<(2 * endCondition)){
-            for (k in 0..0){
+            for (k in 0..<i){
                 val wins = k
                 val losses = i-k
                 val winLossRecord = WinLossRecord(wins, losses)
-
+                val filteredRecords = teams.filter { it.equalsWinLoss(winLossRecord) }
+                
             }
         }
     }

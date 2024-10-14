@@ -37,6 +37,11 @@ data class Team(
         return false
     }
 
+    fun getPreviousPlayedTeams(): List<Team>{
+        return this.winningMatches.map { x -> x.getOtherTeam(this) } +
+                this.lossMatches.map { y -> y.getOtherTeam(this)}
+    }
+
     fun equalsWinLoss(winLossRecord: WinLossRecord): Boolean{
         return winningMatches.size == winLossRecord.getWins() && winLossRecord.getLoss() == lossMatches.size
     }

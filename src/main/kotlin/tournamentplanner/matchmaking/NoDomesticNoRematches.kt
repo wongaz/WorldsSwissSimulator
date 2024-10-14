@@ -6,7 +6,7 @@ import io.wongaz.model.core.Team
 import kotlin.random.Random
 
 class NoDomesticNoRematches(val seed: Random, val matchFactory: MatchFactory): IMatchMakingRules  {
-    override fun performDraws(teams: List<Team>): List<Match> {
+    override fun performDraws(teams: List<Team>, fto: Int): List<Match> {
         TODO("Not yet implemented")
     }
 }

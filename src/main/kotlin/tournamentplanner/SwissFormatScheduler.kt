@@ -33,8 +33,9 @@ class SwissFormatScheduler (
                 val wins = k
                 val losses = i-k
                 val winLossRecord = WinLossRecord(wins, losses)
-                val filteredRecords = teams.filter { it.equalsWinLoss(winLossRecord) }
-                
+                val filteredTeams = teams.filter { it.equalsWinLoss(winLossRecord) }
+                val matches = this.matchMakingRules.performDraws(filteredTeams)
+
             }
         }
     }

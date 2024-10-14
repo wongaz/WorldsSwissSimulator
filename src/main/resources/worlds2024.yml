@@ -1,0 +1,97 @@
+teams:
+  - teamName: "Hanwha Life Esports"
+    teamSignature: "HLE"
+    region: "LCK"
+    seed: 1
+    category: "EASTERN"
+    elo: 1573
+  - teamName: "Gen. G"
+    teamSignature: "GEN"
+    region: "LCK"
+    seed: 2
+    category: "EASTERN"
+    elo: 1664
+  - teamName: "Dplus KIA"
+    teamSignature: "DWK"
+    region: "LCK"
+    seed: 3
+    category: "EASTERN"
+    elo: 1445
+  - teamName: "T1"
+    teamSignature: "T1"
+    region: "LCK"
+    seed: 4
+    category: "EASTERN"
+    elo: 1468
+  - teamName: "Bilibili Gaming"
+    teamSignature: "BLG"
+    region: "LPL"
+    seed: 1
+    category: "EASTERN"
+    elo: 1595
+  - teamName: "Top Esports"
+    teamSignature: "TES"
+    region: "LPL"
+    seed: 2
+    category: "EASTERN"
+    elo: 1540
+  - teamName: "LNG Esports"
+    teamSignature: "LNG"
+    region: "LPL"
+    seed: 3
+    category: "EASTERN"
+    elo: 1456
+  - teamName: "Weibo Gaming"
+    teamSignature: "WBG"
+    region: "LPL"
+    seed: 4
+    category: "EASTERN"
+    elo: 1412
+  - teamName: "G2"
+    teamSignature: "G2"
+    region: "LEC"
+    seed: 1
+    category: "WESTERN"
+    elo: 1462
+  - teamName: "Fnatic"
+    teamSignature: "FNC"
+    region: "LEC"
+    seed: 2
+    category: "WESTERN"
+    elo: 1362
+  - teamName: "FlyQuest"
+    teamSignature: "FLY"
+    region: "LCS"
+    seed: 1
+    category: "WESTERN"
+    elo: 1365
+  - teamName: "Team Liquid"
+    teamSignature: "TL"
+    region: "LCS"
+    seed: 2
+    category: "WESTERN"
+    elo: 1364
+  - teamName: "paiN Gaming"
+    teamSignature: "PNG"
+    region: "CBLOL"
+    seed: 1
+    category: "WILDCARD"
+    elo: 1175
+  - teamName: "Mad Lions KOI"
+    teamSignature: "MDK"
+    region: "LEC"
+    seed: 3
+    category: "WESTERN"
+    elo: 1281
+  - teamName: "Paris Saint Germaine Talon"
+    teamSignature: "PSG"
+    region: "PCS"
+    seed: 1
+    category: "WILDCARD"
+    elo: 1327
+  - teamName: "GAM Esports"
+    teamSignature: "GAM"
+    region: "VCS"
+    seed: 1
+    category: "WILDCARD"
+    elo: 1281

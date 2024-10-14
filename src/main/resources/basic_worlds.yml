@@ -1,0 +1,7 @@
+teams:
+  - teamSignature: "Hanwha Life Esports"
+    teamName: "HLE"
+    region: "LCK"
+    seed: 1
+    category: "EASTERN"
+    elo: 1000

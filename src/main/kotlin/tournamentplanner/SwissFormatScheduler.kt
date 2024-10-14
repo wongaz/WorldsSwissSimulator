@@ -5,6 +5,7 @@ import io.wongaz.matchsimulation.PureEloSimulation
 import io.wongaz.model.core.factory.MatchFactory
 import io.wongaz.model.core.Round
 import io.wongaz.model.core.Team
+import io.wongaz.model.core.WinLossRecord
 import io.wongaz.tournamentplanner.matchmaking.IMatchMakingRules
 import io.wongaz.tournamentplanner.matchmaking.NoEloNoRematchRule
 import kotlin.random.Random
@@ -31,10 +32,18 @@ class SwissFormatScheduler (
             for (k in 0..0){
                 val wins = k
                 val losses = i-k
+                val winLossRecord = WinLossRecord(wins, losses)
 
             }
         }
+    }
 
+    fun getEliminatedTeams(): List<Team>{
+        return eliminated.toList()
+    }
+
+    fun getQualified(): List<Team>{
+        return qualified.toList()
     }
 
 

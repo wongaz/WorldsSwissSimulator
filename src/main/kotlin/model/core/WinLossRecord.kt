@@ -1,11 +1,11 @@
 package io.wongaz.model.core
 
-class WinLossRecord(private val wins: Short, private val loss: Short){
-    fun getWins(): Short{
+class WinLossRecord(private val wins: Int, private val loss: Int){
+    fun getWins(): Int{
         return this.wins
     }
 
-    fun getLoss(): Short{
+    fun getLoss(): Int{
         return this.loss
     }
 

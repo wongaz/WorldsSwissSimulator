@@ -8,18 +8,19 @@ import kotlin.random.Random
 
 /**
  * Purely Random protecting against rematches from past rounds
+ * 8 Monkeys in a barrel
  */
-class NoEloNoRematchRule(val seed: Random, val matchFactory: MatchFactory): IMatchMakingRules {
-    override fun performDraws(teams: List<Team>, fto: Int): List<Match> {
-        val tournamentGraph = TournamentGraph(teams)
+class NoEloNoRematchRule(seed: Random, matchFactory: MatchFactory):
+    AbstractMatchMakingRule(seed, matchFactory) {
+    override fun removeMatches(tournamentGraph: TournamentGraph, teams: List<Team>) {
         super.removeRematches(tournamentGraph, teams)
-
-        tournamentGraph.runNodeMatching(this.seed)
-        val matchesCount = teams.size / 2
-        var output = this.getMatches(tournamentGraph, this.matchFactory, matchesCount, fto)
-        while(output.isNotEmpty()){
-            tournamentGraph.reset()
-        }
-        return output
     }
+
+    override fun updateWeights(tournamentGraph: TournamentGraph, teams: List<Team>) {
+    }
+
+    override fun unblock(tournamentGraph: TournamentGraph, teams: List<Team>) {
+
+    }
+
 }

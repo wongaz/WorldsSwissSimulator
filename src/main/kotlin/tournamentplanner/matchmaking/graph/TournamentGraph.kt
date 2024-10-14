@@ -41,7 +41,6 @@ class TournamentGraph(teams: List<Team>) {
     }
 
     fun runNodeMatching(randomSeed: Random){
-
         this.hasRun = true
     }
 

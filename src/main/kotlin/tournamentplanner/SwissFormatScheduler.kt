@@ -6,7 +6,7 @@ import io.wongaz.model.core.factory.MatchFactory
 import io.wongaz.model.core.Round
 import io.wongaz.model.core.Team
 import io.wongaz.model.core.WinLossRecord
-import io.wongaz.tournamentplanner.matchmaking.IMatchMakingRules
+import io.wongaz.tournamentplanner.matchmaking.AbstractMatchMakingRule
 import io.wongaz.tournamentplanner.matchmaking.NoEloNoRematchRule
 import kotlin.random.Random
 
@@ -18,7 +18,7 @@ class SwissFormatScheduler (
     private val matchSimulation: IGameSimulation = PureEloSimulation(seed)
 
     private val matchFactory = MatchFactory(matchSimulation)
-    private val matchMakingRules: IMatchMakingRules = NoEloNoRematchRule(seed, matchFactory)
+    private val matchMakingRules: AbstractMatchMakingRule = NoEloNoRematchRule(seed, matchFactory)
 
     private val roundsList: List<Round> = mutableListOf()
     private val win = 0
@@ -34,7 +34,7 @@ class SwissFormatScheduler (
                 val losses = i-k
                 val winLossRecord = WinLossRecord(wins, losses)
                 val filteredTeams = teams.filter { it.equalsWinLoss(winLossRecord) }
-                val matches = this.matchMakingRules.performDraws(filteredTeams)
+                val matches = this.matchMakingRules.generateMatchPairs(filteredTeams)
 
             }
         }

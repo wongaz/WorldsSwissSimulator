@@ -6,8 +6,7 @@ import io.wongaz.model.core.Team
 import io.wongaz.tournamentplanner.matchmaking.graph.TournamentGraph
 import kotlin.random.Random
 
-class NoDomesticMatchesRule(seed: Random, matchFactory: MatchFactory):
-    AbstractMatchMakingRule(seed, matchFactory) {
+class StandardEloBasedNoRematchesRule(seed: Random, matchFactory: MatchFactory): AbstractMatchMakingRule(seed, matchFactory) {
     override fun removeMatches(tournamentGraph: TournamentGraph, teams: List<Team>) {
         super.removeRematches(tournamentGraph, teams)
     }
@@ -18,4 +17,5 @@ class NoDomesticMatchesRule(seed: Random, matchFactory: MatchFactory):
     override fun unblock(tournamentGraph: TournamentGraph, teams: List<Team>) {
 
     }
+
 }

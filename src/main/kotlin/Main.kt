@@ -12,4 +12,6 @@ fun main() {
 //    graph.runNodeMatching(Random)
     val swissScheduler = SwissFormatScheduler(3, teams, Random)
     swissScheduler.runTournament()
+    swissScheduler.getQualifiedTeams().forEachIndexed() { index, team -> println("\t Qualified ${index+1}: ${team.teamSignature}") }
+    swissScheduler.getEliminatedTeams().forEachIndexed() { index, team -> println("\t Eliminated ${index+1}: ${team.teamSignature}") }
 }

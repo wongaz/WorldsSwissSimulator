@@ -43,7 +43,15 @@ class Match(val team1: Team,
         return team1
     }
 
+    fun getLoser(): Team?{
+        val winner = this.getWinner() ?: return null
+        if (team1 == winner){
+            return team2
+        }
+        return team1
+    }
+
     override fun toString(): String {
-        return "{${team1.teamSignature} $teamWin1 - $teamWin2 ${team2.teamSignature}}"
+        return "${team1.teamSignature} $teamWin1 - $teamWin2 ${team2.teamSignature}"
     }
 }

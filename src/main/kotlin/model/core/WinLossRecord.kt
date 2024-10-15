@@ -10,6 +10,6 @@ class WinLossRecord(private val wins: Int, private val loss: Int){
     }
 
     override fun toString(): String {
-        return "{$wins-$loss}"
+        return "$wins-$loss"
     }
 }

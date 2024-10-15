@@ -17,8 +17,9 @@ data class Team(
     fun addMatch(match: Match){
         if (this.teamSignature == match.getWinner()?.teamSignature){
             this.winningMatches.add(match)
+        }else {
+            this.lossMatches.add(match)
         }
-        this.lossMatches.add(match)
     }
 
     fun hasPlayed(team: Team): Boolean{

@@ -10,6 +10,7 @@ import kotlin.random.Random
 abstract class AbstractMatchMakingRule(val seed: Random, val matchFactory: MatchFactory){
 
     fun generateMatchPairs(teams: List<Team>, fto: Int = 1) : List<Match>{
+        if (teams.isEmpty()) return emptyList()
         val tournamentGraph: ITournamentGraph = JTournamentGraph(teams)
 
         removeMatches(tournamentGraph, teams)

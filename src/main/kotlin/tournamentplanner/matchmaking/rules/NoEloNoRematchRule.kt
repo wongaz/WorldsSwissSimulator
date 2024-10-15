@@ -8,7 +8,7 @@ import kotlin.random.Random
 
 /**
  * Purely Random protecting against rematches from past rounds
- * 8 Monkeys in a barrel
+ * 16 Monkeys in a barrel
  */
 class NoEloNoRematchRule(seed: Random, matchFactory: MatchFactory):
     AbstractMatchMakingRule(seed, matchFactory) {

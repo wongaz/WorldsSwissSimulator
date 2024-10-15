@@ -47,7 +47,7 @@ import kotlin.random.Random
  * @author Joris Kinable
 </E></V> */
 class RandomizedGreedyMaximumCardinalityMatching<V, E>
-    (graph: Graph<V, E>, private val sort: Boolean = false, private val seed: Random) : MatchingAlgorithm<V, E> {
+    (graph: Graph<V, E>, private val sort: Boolean = false, private val seed: Random = Random.Default) : MatchingAlgorithm<V, E> {
     private val graph: Graph<V, E> = GraphTests.requireUndirected(graph)
 
     /**

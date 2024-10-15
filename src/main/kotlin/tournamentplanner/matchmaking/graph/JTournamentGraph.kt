@@ -12,8 +12,7 @@ import kotlin.random.Random
 class JTournamentGraph(val teams: List<Team>):ITournamentGraph {
     val graph = SimpleWeightedGraph<Team, DefaultWeightedEdge>(DefaultWeightedEdge::class.java)
     var mutablePairs = mutableListOf<Pair<Team,Team>>()
-
-    var result: Graph<Team, DefaultWeightedEdge> = null as Graph<Team, DefaultWeightedEdge>
+    var result: Graph<Team, DefaultWeightedEdge>? = null
     init {
         makeCompleteGraph(teams)
     }

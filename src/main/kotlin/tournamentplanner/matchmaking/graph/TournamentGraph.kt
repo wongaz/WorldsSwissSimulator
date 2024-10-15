@@ -39,6 +39,10 @@ class TournamentGraph(teams: List<Team>) : ITournamentGraph {
         }
     }
 
+    override fun runNodeMatching(randomSeed: Random) {
+        TODO("Not yet implemented")
+    }
+
     override fun removeNode(team1: Team, team2: Team) {
         TODO("Not yet implemented")
     }
@@ -54,6 +58,6 @@ class TournamentGraph(teams: List<Team>) : ITournamentGraph {
             return emptyList()
         }
         val filtered = this.nodeMap.flatMap { (K,V)-> V.toList() }.filter { it.isIncluded() }
-
+        return emptyList()
     }
 }

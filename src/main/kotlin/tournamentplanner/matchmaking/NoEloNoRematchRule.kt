@@ -4,6 +4,7 @@ import io.wongaz.model.core.Match
 import io.wongaz.model.core.factory.MatchFactory
 import io.wongaz.model.core.Team
 import io.wongaz.tournamentplanner.matchmaking.graph.TournamentGraph
+import io.wongaz.tournamentplanner.matchmaking.graph.interfaces.ITournamentGraph
 import kotlin.random.Random
 
 /**
@@ -12,15 +13,17 @@ import kotlin.random.Random
  */
 class NoEloNoRematchRule(seed: Random, matchFactory: MatchFactory):
     AbstractMatchMakingRule(seed, matchFactory) {
-    override fun removeMatches(tournamentGraph: TournamentGraph, teams: List<Team>) {
-        super.removeRematches(tournamentGraph, teams)
+
+    override fun removeMatches(tournamentGraph: ITournamentGraph, teams: List<Team>) {
+        TODO("Not yet implemented")
     }
 
-    override fun updateWeights(tournamentGraph: TournamentGraph, teams: List<Team>) {
+    override fun updateWeights(tournamentGraph: ITournamentGraph, teams: List<Team>) {
+        TODO("Not yet implemented")
     }
 
-    override fun unblock(tournamentGraph: TournamentGraph, teams: List<Team>) {
-
+    override fun unblock(tournamentGraph: ITournamentGraph, teams: List<Team>) {
+        TODO("Not yet implemented")
     }
 
 }

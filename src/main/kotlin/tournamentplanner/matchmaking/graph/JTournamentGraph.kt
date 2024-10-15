@@ -1,15 +1,19 @@
 package io.wongaz.tournamentplanner.matchmaking.graph
 
 import io.wongaz.model.core.Team
+import io.wongaz.tournamentplanner.matchmaking.graph.interfaces.ITournamentGraph
 import io.wongaz.tournamentplanner.matchmaking.graph.matching.RandomizedGreedyMaximumCardinalityMatching
+import org.jgrapht.Graph
 import org.jgrapht.alg.interfaces.MatchingAlgorithm
 import org.jgrapht.graph.DefaultWeightedEdge
 import org.jgrapht.graph.SimpleWeightedGraph
 import kotlin.random.Random
 
-class JTournamentGraph(val teams: List<Team>, private val seed: Random) {
+class JTournamentGraph(val teams: List<Team>):ITournamentGraph {
     val graph = SimpleWeightedGraph<Team, DefaultWeightedEdge>(DefaultWeightedEdge::class.java)
+    var mutablePairs = mutableListOf<Pair<Team,Team>>()
 
+    var result: Graph<Team, DefaultWeightedEdge> = null as Graph<Team, DefaultWeightedEdge>
     init {
         makeCompleteGraph(teams)
     }
@@ -26,15 +30,25 @@ class JTournamentGraph(val teams: List<Team>, private val seed: Random) {
             }
         }
     }
-
-    fun runNodeMatching(randomSeed: Random){
+    override fun runNodeMatching(randomSeed: Random){
         val matchingAlgorithm: MatchingAlgorithm<Team, DefaultWeightedEdge> =
-            RandomizedGreedyMaximumCardinalityMatching(this.graph, seed = this.seed)
+            RandomizedGreedyMaximumCardinalityMatching(this.graph, seed = randomSeed)
         val output = matchingAlgorithm.matching
+        this.result = output.graph
+
         for(edge in output.edges){
             val src = output.graph.getEdgeSource(edge) as Team
             val end = output.graph.getEdgeTarget(edge) as Team
-            println("${src.teamSignature} - ${end.teamSignature}")
+
+            mutablePairs.add(Pair(src, end))
         }
+    }
+
+    override fun removeNode(team1: Team, team2: Team) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getMatching(): List<Pair<Team, Team>> {
+        return mutablePairs
     }
 }

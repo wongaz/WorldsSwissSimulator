@@ -3,10 +3,11 @@ package io.wongaz.tournamentplanner.matchmaking.graph
 import io.wongaz.model.core.Team
 import io.wongaz.tournamentplanner.matchmaking.component.Edge
 import io.wongaz.tournamentplanner.matchmaking.component.INode
+import io.wongaz.tournamentplanner.matchmaking.graph.interfaces.ITournamentGraph
 import io.wongaz.tournamentplanner.matchmaking.graph.node.TeamNode
 import kotlin.random.Random
 
-class TournamentGraph(teams: List<Team>) {
+class TournamentGraph(teams: List<Team>) : ITournamentGraph {
     private val teamToNodeMap = mutableMapOf<Team, INode>()
     private val nodeMap = mutableMapOf<INode, MutableSet<Edge>>()
 
@@ -38,12 +39,8 @@ class TournamentGraph(teams: List<Team>) {
         }
     }
 
-    fun removeNode(edge: Edge){
-        // Mark as Ignorable
-    }
-
-    fun runNodeMatching(randomSeed: Random){
-        this.hasRun = true
+    override fun removeNode(team1: Team, team2: Team) {
+        TODO("Not yet implemented")
     }
 
     fun reset() {
@@ -52,10 +49,11 @@ class TournamentGraph(teams: List<Team>) {
         this.hasRun = false
     }
 
-    fun getMatching(): List<Edge>? {
+    override fun getMatching(): List<Pair<Team, Team>> {
         if (!this.hasRun) {
-            return null
+            return emptyList()
         }
-        return this.nodeMap.flatMap { (K,V)-> V.toList() }.filter { it.isIncluded() }
+        val filtered = this.nodeMap.flatMap { (K,V)-> V.toList() }.filter { it.isIncluded() }
+
     }
 }

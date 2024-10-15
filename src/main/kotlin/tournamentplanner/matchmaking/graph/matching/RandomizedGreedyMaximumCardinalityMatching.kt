@@ -75,11 +75,11 @@ class RandomizedGreedyMaximumCardinalityMatching<V, E>
                 }
             }
         } else {
-            val shuffledVerices = this.graph.vertexSet().shuffled()
-            for (v in shuffledVerices) {
+            val shuffledVertices = this.graph.vertexSet().shuffled(seed)
+            for (v in shuffledVertices) {
                 if (matched.contains(v)) continue
 
-                val shuffledEdges = graph.edgesOf(v).shuffled()
+                val shuffledEdges = graph.edgesOf(v).shuffled(seed)
                 for (e in shuffledEdges) {
                     val w = Graphs.getOppositeVertex(graph, e, v)
                     if (v != w && !matched.contains(w)) {

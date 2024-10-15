@@ -39,7 +39,6 @@ class SwissFormatScheduler (
                 }
 
                 val winLossRecord = WinLossRecord(wins, losses)
-                println(winLossRecord)
                 val filteredTeams = this.teams.filter { it.equalsWinLoss(winLossRecord) }
                 var matches = emptyList<Match>()
                 if (wins == 2 || losses == 2){

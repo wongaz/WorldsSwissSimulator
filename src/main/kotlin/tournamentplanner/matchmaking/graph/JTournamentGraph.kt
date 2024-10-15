@@ -9,7 +9,7 @@ import org.jgrapht.graph.DefaultWeightedEdge
 import org.jgrapht.graph.SimpleWeightedGraph
 import kotlin.random.Random
 
-class JTournamentGraph(val teams: List<Team>):ITournamentGraph {
+class JTournamentGraph(val teams: List<Team>) : ITournamentGraph {
     val graph = SimpleWeightedGraph<Team, DefaultWeightedEdge>(DefaultWeightedEdge::class.java)
 
     var mutablePairs = mutableListOf<Pair<Team,Team>>()
@@ -41,7 +41,7 @@ class JTournamentGraph(val teams: List<Team>):ITournamentGraph {
             val src = output.graph.getEdgeSource(edge) as Team
             val end = output.graph.getEdgeTarget(edge) as Team
 //            println("${src.teamSignature} - ${end.teamSignature}")
-            mutablePairs.add(Pair(src, end))
+            this.mutablePairs.add(Pair(src, end))
         }
     }
 

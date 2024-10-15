@@ -17,5 +17,6 @@ fun main() {
     val swissScheduler = SwissFormatScheduler(3, teams, randomSeed)
     swissScheduler.runTournament()
     swissScheduler.getQualifiedTeams().forEachIndexed() { index, team -> println("\t Qualified ${index+1}: ${team.teamSignature}") }
+    println("------------------------------------------")
     swissScheduler.getEliminatedTeams().forEachIndexed() { index, team -> println("\t Eliminated ${index+1}: ${team.teamSignature}") }
 }

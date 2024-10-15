@@ -7,7 +7,8 @@ import io.wongaz.tournamentplanner.matchmaking.graph.JTournamentGraph
 import io.wongaz.tournamentplanner.matchmaking.graph.interfaces.ITournamentGraph
 import kotlin.random.Random
 
-abstract class AbstractMatchMakingRule(val seed: Random, val matchFactory: MatchFactory){
+abstract class AbstractMatchMakingRule(val seed: Random = Random.Default,
+                                       private val matchFactory: MatchFactory){
 
     fun generateMatchPairs(teams: List<Team>, fto: Int = 1) : List<Match>{
         if (teams.isEmpty()) return emptyList()

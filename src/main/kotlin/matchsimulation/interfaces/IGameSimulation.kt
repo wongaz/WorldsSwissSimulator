@@ -1,4 +1,4 @@
-package io.wongaz.matchsimulation
+package io.wongaz.matchsimulation.interfaces
 
 import io.wongaz.model.core.Team
 

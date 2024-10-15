@@ -1,11 +1,12 @@
 package io.wongaz.model.core
 
-import io.wongaz.matchsimulation.IGameSimulation
+import io.wongaz.matchsimulation.interfaces.IGameSimulation
 
 class Match(val team1: Team,
             val team2: Team,
             val firstTo: Int,
-            private val simulation: IGameSimulation) {
+            private val simulation: IGameSimulation
+) {
 
     private var teamWin1 = 0
     private var teamWin2 = 0

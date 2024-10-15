@@ -1,27 +1,24 @@
 package io.wongaz.tournamentplanner
 
-import io.wongaz.matchsimulation.IGameSimulation
-import io.wongaz.matchsimulation.PureEloSimulation
+import io.wongaz.matchsimulation.interfaces.IGameSimulation
+import io.wongaz.matchsimulation.rules.PureEloSimulation
 import io.wongaz.model.core.*
 import io.wongaz.model.core.factory.MatchFactory
 import io.wongaz.tournamentplanner.matchmaking.AbstractMatchMakingRule
 import io.wongaz.tournamentplanner.matchmaking.NoEloNoRematchRule
-import io.wongaz.tournamentplanner.matchmaking.graph.JTournamentGraph
 import kotlin.random.Random
 
 class SwissFormatScheduler (
     private val endCondition: Int,
     private val teams: List<Team>,
-    seed: Random){
+    private val seed: Random = Random.Default) {
 
-    private val matchSimulation: IGameSimulation = PureEloSimulation(seed)
+    private val matchSimulation: IGameSimulation = PureEloSimulation(this.seed)
 
     private val matchFactory = MatchFactory(matchSimulation)
-    private val matchMakingRules: AbstractMatchMakingRule = NoEloNoRematchRule(seed, matchFactory)
+    private val matchMakingRules: AbstractMatchMakingRule = NoEloNoRematchRule(this.seed, matchFactory)
 
     private val roundsList = mutableListOf<Round>()
-    private val win = 0
-    private val loss = 0
 
     private val qualified: MutableList<Team> = mutableListOf()
     private val eliminated: MutableList<Team> = mutableListOf()

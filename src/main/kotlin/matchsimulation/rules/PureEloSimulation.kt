@@ -1,10 +1,11 @@
-package io.wongaz.matchsimulation
+package io.wongaz.matchsimulation.rules
 
+import io.wongaz.matchsimulation.interfaces.IGameSimulation
 import io.wongaz.model.core.Team
 import kotlin.math.pow
 import kotlin.random.Random
 
-class PureEloSimulation(val randomSeed: Random): IGameSimulation{
+class PureEloSimulation(val randomSeed: Random): IGameSimulation {
     override fun runSingleGameSimulation(team1: Team, team2: Team): Team {
         val elo1 = team1.elo
         val elo2 = team2.elo

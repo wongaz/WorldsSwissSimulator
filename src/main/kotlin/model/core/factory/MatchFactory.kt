@@ -1,6 +1,6 @@
 package io.wongaz.model.core.factory
 
-import io.wongaz.matchsimulation.IGameSimulation
+import io.wongaz.matchsimulation.interfaces.IGameSimulation
 import io.wongaz.model.core.Match
 import io.wongaz.model.core.Team
 

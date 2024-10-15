@@ -14,8 +14,8 @@ class SwissFormatScheduler (
     private val seed: Random = Random.Default) {
 
     private val matchSimulation: IGameSimulation = PureEloSimulation(this.seed)
+    private val matchFactory = MatchFactory(this.matchSimulation)
 
-    private val matchFactory = MatchFactory(matchSimulation)
     private val matchMakingRules: AbstractMatchMakingRule = NoEloNoRematchRule(this.seed, matchFactory)
 
     private val roundsList = mutableListOf<Round>()

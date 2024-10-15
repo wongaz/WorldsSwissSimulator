@@ -1,4 +1,4 @@
-package io.wongaz.tournamentplanner.matchmaking.graph
+package io.wongaz.tournamentplanner.matchmaking.component
 
 import io.wongaz.model.core.Team
 import io.wongaz.tournamentplanner.matchmaking.graph.node.TeamNode

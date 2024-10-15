@@ -1,11 +1,13 @@
 package io.wongaz.tournamentplanner.matchmaking.graph
 
 import io.wongaz.model.core.Team
+import io.wongaz.tournamentplanner.matchmaking.component.Edge
+import io.wongaz.tournamentplanner.matchmaking.component.INode
 import io.wongaz.tournamentplanner.matchmaking.graph.node.TeamNode
 import kotlin.random.Random
 
 class TournamentGraph(teams: List<Team>) {
-    private val teamToNodeMap = mutableMapOf<Team,INode>()
+    private val teamToNodeMap = mutableMapOf<Team, INode>()
     private val nodeMap = mutableMapOf<INode, MutableSet<Edge>>()
 
     private var hasRun = false

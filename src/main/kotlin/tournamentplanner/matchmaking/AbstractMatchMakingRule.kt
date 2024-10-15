@@ -3,7 +3,7 @@ package io.wongaz.tournamentplanner.matchmaking
 import io.wongaz.model.core.Match
 import io.wongaz.model.core.Team
 import io.wongaz.model.core.factory.MatchFactory
-import io.wongaz.tournamentplanner.matchmaking.graph.Edge
+import io.wongaz.tournamentplanner.matchmaking.component.Edge
 import io.wongaz.tournamentplanner.matchmaking.graph.TournamentGraph
 import kotlin.random.Random
 

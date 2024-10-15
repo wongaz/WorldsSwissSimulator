@@ -28,8 +28,6 @@ class SwissFormatScheduler (
             val currentRound = Round(i+1)
             this.roundsList.add(currentRound)
 
-            println(currentRound)
-
             for (k in 0..i){
                 val wins = k
                 val losses = i-k
@@ -40,13 +38,12 @@ class SwissFormatScheduler (
 
                 val winLossRecord = WinLossRecord(wins, losses)
                 val filteredTeams = this.teams.filter { it.equalsWinLoss(winLossRecord) }
-                var matches = emptyList<Match>()
+                var matches: List<Match>
                 if (wins == 2 || losses == 2){
                     matches = this.matchMakingRules.generateMatchPairs(filteredTeams, 2)
                 }else {
                     matches = this.matchMakingRules.generateMatchPairs(filteredTeams)
                 }
-                println(matches)
 
                 currentRound.addPool(winLossRecord, Pool(matches))
                 for (match in matches){
@@ -58,11 +55,11 @@ class SwissFormatScheduler (
 
                     if(wins == 2){
                         qualified.add(winner)
-                        println("Qualify: ${winner.teamSignature}")
+//                        println("Qualify: ${winner.teamSignature}")
                     }
                     if(losses == 2) {
                         eliminated.add(loser)
-                        println("Eliminated: ${loser.teamSignature}")
+//                        println("Eliminated: ${loser.teamSignature}")
                     }
                 }
             }
@@ -76,6 +73,4 @@ class SwissFormatScheduler (
     fun getQualifiedTeams(): List<Team>{
         return this.qualified.toList()
     }
-
-
 }

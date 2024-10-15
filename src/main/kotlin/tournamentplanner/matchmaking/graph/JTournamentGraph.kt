@@ -5,9 +5,16 @@ import io.wongaz.tournamentplanner.matchmaking.graph.interfaces.ITournamentGraph
 import io.wongaz.tournamentplanner.matchmaking.graph.matching.RandomizedGreedyMaximumCardinalityMatching
 import org.jgrapht.Graph
 import org.jgrapht.alg.interfaces.MatchingAlgorithm
+import org.jgrapht.graph.DefaultEdge
 import org.jgrapht.graph.DefaultWeightedEdge
 import org.jgrapht.graph.SimpleWeightedGraph
+import org.jgrapht.nio.Attribute
+import org.jgrapht.nio.dot.DOTExporter
+import java.io.StringWriter
+import java.io.Writer
+import java.util.function.Function
 import kotlin.random.Random
+
 
 class JTournamentGraph(val teams: List<Team>) : ITournamentGraph {
     val graph = SimpleWeightedGraph<Team, DefaultWeightedEdge>(DefaultWeightedEdge::class.java)
@@ -37,12 +44,15 @@ class JTournamentGraph(val teams: List<Team>) : ITournamentGraph {
         val output = matchingAlgorithm.matching
         this.result = output.graph
 
+        val pairs = mutableListOf<Pair<Team,Team>>()
         for(edge in output.edges){
             val src = output.graph.getEdgeSource(edge) as Team
             val end = output.graph.getEdgeTarget(edge) as Team
 //            println("${src.teamSignature} - ${end.teamSignature}")
-            this.mutablePairs.add(Pair(src, end))
+            pairs.add(Pair(src, end))
         }
+        this.mutablePairs = pairs
+
     }
 
     override fun removeNode(team1: Team, team2: Team){
@@ -51,5 +61,13 @@ class JTournamentGraph(val teams: List<Team>) : ITournamentGraph {
 
     override fun getMatching(): List<Pair<Team, Team>> {
         return mutablePairs
+    }
+
+    override fun exportGraph() {
+        val exporter: DOTExporter<Team, DefaultWeightedEdge> =
+            DOTExporter<Team, DefaultWeightedEdge> { v: Team -> v.teamSignature }
+        val writer: Writer = StringWriter()
+        exporter.exportGraph(this.graph, writer)
+        System.out.println(writer.toString())
     }
 }

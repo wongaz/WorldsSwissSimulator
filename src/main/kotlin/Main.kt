@@ -6,8 +6,7 @@ import kotlin.random.Random
 
 fun main() {
     val stream = object {}.javaClass.getResourceAsStream("/worlds2024.yml")!!
-    val teamLoader = TeamLoaderManager()
-    val teams = teamLoader.getTeamsFromStream(stream)
+    val teams = TeamLoaderManager().getTeamsFromStream(stream)
 //    val graph = JTournamentGraph(teams)
 //    graph.runNodeMatching(Random)
     val rSeed = System.currentTimeMillis()

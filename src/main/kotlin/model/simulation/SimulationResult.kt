@@ -1,0 +1,18 @@
+package io.wongaz.model.simulation
+
+import io.wongaz.model.core.Team
+
+data class SimulationResult(
+    private val team: Team,
+    private val iterations: Int){
+
+    var qualification = 0.0
+
+    fun getPercentage():Double{
+        return qualification/iterations
+    }
+
+    fun addQualification(){
+        this.qualification += 1
+    }
+}

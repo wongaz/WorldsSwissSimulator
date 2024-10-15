@@ -6,7 +6,7 @@ import io.wongaz.tournamentplanner.matchmaking.interfaces.AbstractMatchMakingRul
 import io.wongaz.tournamentplanner.matchmaking.graph.interfaces.ITournamentGraph
 import kotlin.random.Random
 
-class PurelyRandom(seed: Random, matchFactory: MatchFactory): AbstractMatchMakingRule(seed, matchFactory) {
+class PurelyRandom(seed: Random): AbstractMatchMakingRule(seed) {
     override fun removeMatches(tournamentGraph: ITournamentGraph, teams: List<Team>) {
         TODO("Not yet implemented")
     }

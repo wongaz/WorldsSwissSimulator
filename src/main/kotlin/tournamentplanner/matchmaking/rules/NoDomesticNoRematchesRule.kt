@@ -6,7 +6,7 @@ import io.wongaz.tournamentplanner.matchmaking.interfaces.AbstractMatchMakingRul
 import io.wongaz.tournamentplanner.matchmaking.graph.interfaces.ITournamentGraph
 import kotlin.random.Random
 
-class NoDomesticNoRematchesRule(seed: Random, matchFactory: MatchFactory): AbstractMatchMakingRule(seed, matchFactory) {
+class NoDomesticNoRematchesRule(seed: Random): AbstractMatchMakingRule(seed) {
     override fun removeMatches(tournamentGraph: ITournamentGraph, teams: List<Team>) {
         TODO("Not yet implemented")
     }

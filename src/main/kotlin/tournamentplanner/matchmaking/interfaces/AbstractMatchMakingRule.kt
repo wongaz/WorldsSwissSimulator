@@ -7,10 +7,10 @@ import io.wongaz.tournamentplanner.matchmaking.graph.JTournamentGraph
 import io.wongaz.tournamentplanner.matchmaking.graph.interfaces.ITournamentGraph
 import kotlin.random.Random
 
-abstract class AbstractMatchMakingRule(val seed: Random = Random.Default,
-                                       private val matchFactory: MatchFactory){
+abstract class AbstractMatchMakingRule(
+    val seed: Random = Random.Default){
 
-    fun generateMatchPairs(teams: List<Team>, fto: Int = 1) : List<Match>{
+    fun generateMatchPairs(teams: List<Team>, matchFactory: MatchFactory, fto: Int = 1) : List<Match>{
         if (teams.isEmpty()) return emptyList()
         val tournamentGraph: ITournamentGraph = JTournamentGraph(teams)
 
@@ -20,12 +20,12 @@ abstract class AbstractMatchMakingRule(val seed: Random = Random.Default,
         tournamentGraph.runNodeMatching(this.seed)
 
         val matchesCount = teams.size / 2
-        var output = this.getMatches(tournamentGraph, this.matchFactory, matchesCount, fto)
+        var output = this.getMatches(tournamentGraph, matchFactory, matchesCount, fto)
 
         while(output.isEmpty()){
             unblock(tournamentGraph, teams)
             tournamentGraph.runNodeMatching(this.seed)
-            output = this.getMatches(tournamentGraph, this.matchFactory, matchesCount, fto)
+            output = this.getMatches(tournamentGraph, matchFactory, matchesCount, fto)
         }
         return output
     }

@@ -13,12 +13,11 @@ import kotlin.random.Random
 class SwissFormatScheduler (
     private val endCondition: Int,
     private val teams: List<Team>,
-    private val seed: Random = Random.Default) {
+    private val seed: Random = Random.Default,
+    private val gameSimulation: IGameSimulation) {
 
-    private val matchSimulation: IGameSimulation = PureEloSimulation(this.seed)
-    private val matchFactory = MatchFactory(this.matchSimulation)
-
-    private val matchMakingRules: AbstractMatchMakingRule = NoEloNoRematchRule(this.seed, matchFactory)
+    private val matchFactory = MatchFactory(this.gameSimulation)
+    private val matchMakingRules: AbstractMatchMakingRule = NoEloNoRematchRule(this.seed)
 
     private val roundsList = mutableListOf<Round>()
 
@@ -42,9 +41,9 @@ class SwissFormatScheduler (
                 val filteredTeams = this.teams.filter { it.equalsWinLoss(winLossRecord) }
                 var matches: List<Match>
                 if (wins == 2 || losses == 2){
-                    matches = this.matchMakingRules.generateMatchPairs(filteredTeams, 2)
+                    matches = this.matchMakingRules.generateMatchPairs(filteredTeams, this.matchFactory,2)
                 }else {
-                    matches = this.matchMakingRules.generateMatchPairs(filteredTeams)
+                    matches = this.matchMakingRules.generateMatchPairs(filteredTeams,this.matchFactory)
                 }
 
                 currentRound.addPool(winLossRecord, Pool(matches))

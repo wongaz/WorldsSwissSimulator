@@ -10,8 +10,8 @@ import kotlin.random.Random
  * Purely Random protecting against rematches from past rounds
  * 16 Monkeys in a barrel
  */
-class NoEloNoRematchRule(seed: Random, matchFactory: MatchFactory):
-    AbstractMatchMakingRule(seed, matchFactory) {
+class NoEloNoRematchRule(seed: Random):
+    AbstractMatchMakingRule(seed) {
 
     override fun removeMatches(tournamentGraph: ITournamentGraph, teams: List<Team>) {
         for (team in teams) {

@@ -6,7 +6,7 @@ import io.wongaz.tournamentplanner.matchmaking.interfaces.AbstractMatchMakingRul
 import io.wongaz.tournamentplanner.matchmaking.graph.interfaces.ITournamentGraph
 import kotlin.random.Random
 
-class StandardEloBasedRule(seed: Random, matchFactory: MatchFactory): AbstractMatchMakingRule(seed, matchFactory) {
+class StandardEloBasedRule(seed: Random): AbstractMatchMakingRule(seed) {
     override fun removeMatches(tournamentGraph: ITournamentGraph, teams: List<Team>) {
         super.removeRematches(tournamentGraph, teams)
     }

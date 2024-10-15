@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.0.20"
+    id("com.google.devtools.ksp") version "2.0.21-1.0.25"
 }
 
 
@@ -8,6 +9,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    google()
 }
 
 dependencies {
@@ -20,7 +22,10 @@ dependencies {
 
     implementation("org.jgrapht:jgrapht-core:1.5.2")
     implementation("org.jgrapht:jgrapht-io:1.5.2")
-    
+
+    ksp("me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.2")
+    implementation("me.tatarka.inject:kotlin-inject-runtime:0.7.2")
+
     testImplementation(kotlin("test"))
 }
 

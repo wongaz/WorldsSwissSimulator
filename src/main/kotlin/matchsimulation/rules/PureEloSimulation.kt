@@ -2,9 +2,11 @@ package io.wongaz.matchsimulation.rules
 
 import io.wongaz.matchsimulation.interfaces.IGameSimulation
 import io.wongaz.model.core.Team
+import me.tatarka.inject.annotations.Inject
 import kotlin.math.pow
 import kotlin.random.Random
 
+@Inject
 class PureEloSimulation(private val randomSeed: Random = Random.Default): IGameSimulation {
     override fun runSingleGameSimulation(team1: Team, team2: Team): Team {
         val elo1 = team1.elo

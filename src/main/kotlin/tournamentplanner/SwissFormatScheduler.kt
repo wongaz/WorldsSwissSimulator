@@ -6,8 +6,10 @@ import io.wongaz.model.core.*
 import io.wongaz.model.core.factory.MatchFactory
 import io.wongaz.tournamentplanner.matchmaking.interfaces.AbstractMatchMakingRule
 import io.wongaz.tournamentplanner.matchmaking.rules.NoEloNoRematchRule
+import me.tatarka.inject.annotations.Inject
 import kotlin.random.Random
 
+@Inject
 class SwissFormatScheduler (
     private val endCondition: Int,
     private val teams: List<Team>,

@@ -11,8 +11,10 @@ import kotlin.random.Random
 
 class JTournamentGraph(val teams: List<Team>):ITournamentGraph {
     val graph = SimpleWeightedGraph<Team, DefaultWeightedEdge>(DefaultWeightedEdge::class.java)
+
     var mutablePairs = mutableListOf<Pair<Team,Team>>()
     var result: Graph<Team, DefaultWeightedEdge>? = null
+
     init {
         makeCompleteGraph(teams)
     }
@@ -38,13 +40,13 @@ class JTournamentGraph(val teams: List<Team>):ITournamentGraph {
         for(edge in output.edges){
             val src = output.graph.getEdgeSource(edge) as Team
             val end = output.graph.getEdgeTarget(edge) as Team
-
+//            println("${src.teamSignature} - ${end.teamSignature}")
             mutablePairs.add(Pair(src, end))
         }
     }
 
-    override fun removeNode(team1: Team, team2: Team) {
-        TODO("Not yet implemented")
+    override fun removeNode(team1: Team, team2: Team){
+        this.graph.removeEdge(team1, team2)
     }
 
     override fun getMatching(): List<Pair<Team, Team>> {

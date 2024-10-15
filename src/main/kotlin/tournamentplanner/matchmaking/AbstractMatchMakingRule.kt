@@ -20,9 +20,8 @@ abstract class AbstractMatchMakingRule(val seed: Random, val matchFactory: Match
         val matchesCount = teams.size / 2
         var output = this.getMatches(tournamentGraph, this.matchFactory, matchesCount, fto)
 
-        while(output.isNotEmpty()){
+        while(output.isEmpty()){
             unblock(tournamentGraph, teams)
-
             tournamentGraph.runNodeMatching(this.seed)
             output = this.getMatches(tournamentGraph, this.matchFactory, matchesCount, fto)
         }

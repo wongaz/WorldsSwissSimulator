@@ -15,15 +15,18 @@ class NoEloNoRematchRule(seed: Random, matchFactory: MatchFactory):
     AbstractMatchMakingRule(seed, matchFactory) {
 
     override fun removeMatches(tournamentGraph: ITournamentGraph, teams: List<Team>) {
-        TODO("Not yet implemented")
+        for (team in teams) {
+            val pastTeams = team.getPreviousPlayedTeams()
+            for (pTeam in pastTeams){
+                tournamentGraph.removeNode(team, pTeam)
+            }
+        }
     }
 
     override fun updateWeights(tournamentGraph: ITournamentGraph, teams: List<Team>) {
-        TODO("Not yet implemented")
     }
 
     override fun unblock(tournamentGraph: ITournamentGraph, teams: List<Team>) {
-        TODO("Not yet implemented")
     }
 
 }

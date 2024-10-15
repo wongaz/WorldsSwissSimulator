@@ -8,6 +8,7 @@ import io.wongaz.model.core.Team
 import io.wongaz.model.core.WinLossRecord
 import io.wongaz.tournamentplanner.matchmaking.AbstractMatchMakingRule
 import io.wongaz.tournamentplanner.matchmaking.NoEloNoRematchRule
+import io.wongaz.tournamentplanner.matchmaking.graph.JTournamentGraph
 import kotlin.random.Random
 
 class SwissFormatScheduler (
@@ -28,14 +29,15 @@ class SwissFormatScheduler (
     private val eliminated: MutableList<Team> = mutableListOf()
 
     fun runTournament(){
-        for (i in 0..<(2 * endCondition)){
-            for (k in 0..<i){
+        for (i in 0 .. 2 * endCondition){
+            for (k in 0..i){
                 val wins = k
                 val losses = i-k
                 val winLossRecord = WinLossRecord(wins, losses)
+                println(winLossRecord)
                 val filteredTeams = teams.filter { it.equalsWinLoss(winLossRecord) }
                 val matches = this.matchMakingRules.generateMatchPairs(filteredTeams)
-
+                println(matches)
             }
         }
     }

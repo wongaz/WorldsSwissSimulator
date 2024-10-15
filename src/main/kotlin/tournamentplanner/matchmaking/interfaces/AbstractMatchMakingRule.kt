@@ -1,4 +1,4 @@
-package io.wongaz.tournamentplanner.matchmaking
+package io.wongaz.tournamentplanner.matchmaking.interfaces
 
 import io.wongaz.model.core.Match
 import io.wongaz.model.core.Team

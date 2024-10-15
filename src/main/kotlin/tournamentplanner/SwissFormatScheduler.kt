@@ -4,8 +4,8 @@ import io.wongaz.matchsimulation.interfaces.IGameSimulation
 import io.wongaz.matchsimulation.rules.PureEloSimulation
 import io.wongaz.model.core.*
 import io.wongaz.model.core.factory.MatchFactory
-import io.wongaz.tournamentplanner.matchmaking.AbstractMatchMakingRule
-import io.wongaz.tournamentplanner.matchmaking.NoEloNoRematchRule
+import io.wongaz.tournamentplanner.matchmaking.interfaces.AbstractMatchMakingRule
+import io.wongaz.tournamentplanner.matchmaking.rules.NoEloNoRematchRule
 import kotlin.random.Random
 
 class SwissFormatScheduler (

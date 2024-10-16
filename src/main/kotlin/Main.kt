@@ -13,9 +13,9 @@ fun main() {
     println("Seed $rSeed")
 //    val randomSeed = Random(rSeed)
     val randomSeed = Random(1729016541378)
-    val swissScheduler = SwissFormatScheduler(3, teams, randomSeed)
-    swissScheduler.runTournament()
-    swissScheduler.getQualifiedTeams().sortedBy { it.teamSignature }.forEachIndexed() { index, team -> println("\t Qualified ${index+1}: ${team.teamSignature}") }
-    println("------------------------------------------")
-    swissScheduler.getEliminatedTeams().sortedBy { it.teamSignature }.forEachIndexed() { index, team -> println("\t Eliminated ${index+1}: ${team.teamSignature}") }
+//    val swissScheduler = SwissFormatScheduler(3, teams, randomSeed)
+//    swissScheduler.runTournament()
+//    swissScheduler.getQualifiedTeams().sortedBy { it.teamSignature }.forEachIndexed() { index, team -> println("\t Qualified ${index+1}: ${team.teamSignature}") }
+//    println("------------------------------------------")
+//    swissScheduler.getEliminatedTeams().sortedBy { it.teamSignature }.forEachIndexed() { index, team -> println("\t Eliminated ${index+1}: ${team.teamSignature}") }
 }

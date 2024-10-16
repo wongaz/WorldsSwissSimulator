@@ -5,7 +5,6 @@ import io.wongaz.model.core.*
 import io.wongaz.model.core.factory.MatchFactory
 import io.wongaz.tournamentplanner.matchmaking.interfaces.AbstractMatchMakingRule
 import me.tatarka.inject.annotations.Inject
-import kotlin.random.Random
 
 @Inject
 class SwissFormatScheduler (

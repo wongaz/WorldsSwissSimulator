@@ -1,11 +1,9 @@
 package io.wongaz.tournamentplanner
 
 import io.wongaz.matchsimulation.interfaces.IGameSimulation
-import io.wongaz.matchsimulation.rules.PureEloSimulation
 import io.wongaz.model.core.*
 import io.wongaz.model.core.factory.MatchFactory
 import io.wongaz.tournamentplanner.matchmaking.interfaces.AbstractMatchMakingRule
-import io.wongaz.tournamentplanner.matchmaking.rules.NoEloNoRematchRule
 import me.tatarka.inject.annotations.Inject
 import kotlin.random.Random
 

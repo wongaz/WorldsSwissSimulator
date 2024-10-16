@@ -5,14 +5,11 @@ import io.wongaz.tournamentplanner.matchmaking.graph.interfaces.ITournamentGraph
 import io.wongaz.tournamentplanner.matchmaking.graph.matching.RandomizedGreedyMaximumCardinalityMatching
 import org.jgrapht.Graph
 import org.jgrapht.alg.interfaces.MatchingAlgorithm
-import org.jgrapht.graph.DefaultEdge
 import org.jgrapht.graph.DefaultWeightedEdge
 import org.jgrapht.graph.SimpleWeightedGraph
-import org.jgrapht.nio.Attribute
 import org.jgrapht.nio.dot.DOTExporter
 import java.io.StringWriter
 import java.io.Writer
-import java.util.function.Function
 import kotlin.random.Random
 
 

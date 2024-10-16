@@ -1,9 +1,8 @@
 package io.wongaz.tournamentplanner.matchmaking.rules
 
-import io.wongaz.model.core.factory.MatchFactory
 import io.wongaz.model.core.Team
-import io.wongaz.tournamentplanner.matchmaking.interfaces.AbstractMatchMakingRule
 import io.wongaz.tournamentplanner.matchmaking.graph.interfaces.ITournamentGraph
+import io.wongaz.tournamentplanner.matchmaking.interfaces.AbstractMatchMakingRule
 import kotlin.random.Random
 
 /**

@@ -9,7 +9,7 @@ data class SimulationResult(
     var qualification = 0.0
 
     fun getPercentage():Double{
-        return qualification/iterations
+        return (qualification/iterations) * 100
     }
 
     fun addQualification(){

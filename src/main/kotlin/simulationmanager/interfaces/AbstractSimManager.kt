@@ -9,7 +9,7 @@ abstract class AbstractSimManager(val teams: List<Team>, protected val iteration
     abstract fun doWork()
 
     fun updateResults(team: Team) {
-        this.simResults.get(team.teamSignature)!!.addQualification()
+        this.simResults[team.teamSignature]!!.addQualification()
     }
 
     fun getResults(): List<SimulationResult> {

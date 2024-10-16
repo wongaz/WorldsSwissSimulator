@@ -1,4 +1,4 @@
-package io.wongaz.simulationmanager
+package io.wongaz.simulationmanager.sims
 
 import io.wongaz.model.core.Team
 import io.wongaz.simulationmanager.interfaces.AbstractSimManager

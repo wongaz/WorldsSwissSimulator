@@ -11,7 +11,6 @@ import kotlin.random.Random
 class SwissFormatScheduler (
     private val endCondition: Int,
     private val teams: List<Team>,
-    private val seed: Random = Random.Default,
     private val gameSimulation: IGameSimulation,
     private val matchMakingRule: AbstractMatchMakingRule) {
 

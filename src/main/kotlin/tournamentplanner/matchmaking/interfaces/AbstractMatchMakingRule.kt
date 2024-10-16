@@ -9,8 +9,7 @@ import me.tatarka.inject.annotations.Inject
 import kotlin.random.Random
 
 @Inject
-abstract class AbstractMatchMakingRule(
-    val seed: Random = Random.Default){
+abstract class AbstractMatchMakingRule(val seed: Random = Random.Default){
 
     fun generateMatchPairs(teams: List<Team>, matchFactory: MatchFactory, fto: Int = 1) : List<Match>{
         if (teams.isEmpty()) return emptyList()

@@ -1,7 +1,6 @@
 package io.wongaz.matchsimulation.interfaces
 
 import io.wongaz.model.core.Team
-import kotlin.random.Random
 
 interface IGameSimulation {
     /**

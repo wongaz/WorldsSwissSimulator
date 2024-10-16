@@ -1,4 +1,4 @@
-package io.wongaz.tournamentplanner
+package io.wongaz.tournamentplanner.scheduler
 
 import io.wongaz.matchsimulation.interfaces.IGameSimulation
 import io.wongaz.model.core.*
@@ -8,7 +8,7 @@ import me.tatarka.inject.annotations.Inject
 
 @Inject
 class SwissFormatScheduler (
-    private val endCondition: Int,
+    private val endCondition: Int = 3,
     private val teams: List<Team>,
     private val gameSimulation: IGameSimulation,
     private val matchMakingRule: AbstractMatchMakingRule) {
@@ -36,7 +36,7 @@ class SwissFormatScheduler (
                 val winLossRecord = WinLossRecord(wins, losses)
                 val filteredTeams = this.teams.filter { it.equalsWinLoss(winLossRecord) }
                 var matches: List<Match>
-                if (wins == 2 || losses == 2){
+                if (wins == endCondition - 1  || losses == endCondition - 1 ){
                     matches = this.matchMakingRule.generateMatchPairs(filteredTeams, this.matchFactory,2)
                 }else {
                     matches = this.matchMakingRule.generateMatchPairs(filteredTeams,this.matchFactory)

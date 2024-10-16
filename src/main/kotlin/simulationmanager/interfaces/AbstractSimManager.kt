@@ -15,4 +15,8 @@ abstract class AbstractSimManager(val teams: List<Team>, protected val iteration
     fun getResults(): List<SimulationResult> {
         return simResults.values.toList()
     }
+
+    protected fun deepCopyTeams(): List<Team> {
+        return this.teams.map { it.copy() }.toList()
+    }
 }

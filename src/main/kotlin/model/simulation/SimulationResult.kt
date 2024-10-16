@@ -15,4 +15,8 @@ data class SimulationResult(
     fun addQualification(){
         this.qualification += 1
     }
+
+    fun makeSimpleResultsLine(): String {
+        return "${this.team.teamSignature} - ${this.qualification} - ${this.getPercentage()}"
+    }
 }

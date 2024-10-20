@@ -4,6 +4,7 @@ import io.wongaz.model.core.Match
 import io.wongaz.model.core.Team
 import io.wongaz.model.core.factory.MatchFactory
 import io.wongaz.tournamentplanner.matchmaking.graph.JTournamentGraph
+import io.wongaz.tournamentplanner.matchmaking.graph.TournamentGraph
 import io.wongaz.tournamentplanner.matchmaking.graph.interfaces.ITournamentGraph
 import me.tatarka.inject.annotations.Inject
 import kotlin.random.Random
@@ -41,6 +42,10 @@ abstract class AbstractMatchMakingRule(val seed: Random = Random.Default){
                 tGraph.removeNode(team, pastMatchup)
             }
         }
+    }
+
+    fun removeDomesticMatches(tournamentGraph: TournamentGraph, teams: List<Team>){
+        teams.groupBy { it.region }
     }
 
     fun getMatches(tGraph: ITournamentGraph, matchFactory: MatchFactory, k: Int, fto: Int): List<Match> {

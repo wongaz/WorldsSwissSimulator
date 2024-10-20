@@ -15,12 +15,7 @@ class NoEloNoRematchRule(seed: Random):
     AbstractMatchMakingRule(seed) {
 
     override fun removeMatches(tournamentGraph: ITournamentGraph, teams: List<Team>) {
-        for (team in teams) {
-            val pastTeams = team.getPreviousPlayedTeams()
-            for (pTeam in pastTeams){
-                tournamentGraph.removeNode(team, pTeam)
-            }
-        }
+        super.removeRematches(tournamentGraph, teams)
     }
 
     override fun updateWeights(tournamentGraph: ITournamentGraph, teams: List<Team>) {

@@ -1,6 +1,7 @@
 plugins {
-    kotlin("jvm") version "2.0.20"
-    id("com.google.devtools.ksp") version "2.0.21-1.0.25"
+    kotlin("jvm") version "2.3.0"
+    id("com.google.devtools.ksp") version "2.3.7"
+    application
 }
 
 
@@ -10,6 +11,10 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     google()
+}
+
+kotlin {
+    jvmToolchain(25)
 }
 
 dependencies {
@@ -24,12 +29,16 @@ dependencies {
     implementation("org.jgrapht:jgrapht-core:1.5.2")
     implementation("org.jgrapht:jgrapht-io:1.5.2")
 
-    ksp("me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.2")
-    implementation("me.tatarka.inject:kotlin-inject-runtime:0.7.2")
+    ksp("me.tatarka.inject:kotlin-inject-compiler-ksp:0.9.0")
+    implementation("me.tatarka.inject:kotlin-inject-runtime:0.9.0")
 
     testImplementation(kotlin("test"))
 }
 
 tasks.test {
     useJUnitPlatform()
+}
+
+application {
+    mainClass.set("io.wongaz.MainKt")
 }

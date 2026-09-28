@@ -1,33 +1,61 @@
-# Copilot instructions for WorldsSwissSimulator
+# Copilot Instructions
 
-## Build and test commands
+Monte-Carlo simulator for the League of Legends Worlds Swiss-stage format. Kotlin/JVM, Gradle Kotlin DSL, JDK toolchain, kotlin-inject (KSP) for DI, JGraphT for graph-based matchmaking, Jackson YAML for input.
 
-- Build the project: `.\gradlew.bat build`
-- Run the simulator: `.\gradlew.bat run` (application entry point: `io.wongaz.MainKt`)
-- Run the test suite: `.\gradlew.bat test`
-- Run one test class or method: `.\gradlew.bat test --tests "fully.qualified.TestClass"` or `.\gradlew.bat test --tests "fully.qualified.TestClass.testName"`
+## Commands
 
-Use JDK 25 and set `JAVA_HOME` to its installation directory before running the commands above. The build pins the Kotlin/JVM toolchain to Java 25 and uses the Gradle 9.3.0 wrapper, which supports running on JDK 25.
+- Build: `.\gradlew.bat build`
+- Run the simulator: `.\gradlew.bat run`. The application entry point is `io.wongaz.MainKt` in `src\main\kotlin\Main.kt`.
+- Tests: `.\gradlew.bat test` (JUnit Platform via `kotlin("test")`). To run one test class or method: `.\gradlew.bat test --tests "fully.qualified.ClassName"` or `.\gradlew.bat test --tests "fully.qualified.ClassName.methodName"`.
+- KSP runs as part of `build`/`compileKotlin`; if generated `create` extension functions go missing from imports (e.g. `io.wongaz.tournamentplanner.create`), do a clean build: `.\gradlew.bat clean build`.
 
-The build uses Kotlin `2.3.21` and KSP `2.3.12` (KSP2). KSP now versions independently of Kotlin; do not apply the old Kotlin-version-prefix matching rule when updating these plugins.
+Use JDK 25 and set `JAVA_HOME` to its installation directory before running these commands. The Kotlin/JVM toolchain targets Java 25, and the Gradle 9.3.0 wrapper supports running on JDK 25.
 
-## High-level architecture
+The build uses Kotlin `2.3.21`, KSP `2.3.12` (KSP2), and kotlin-inject `0.9.0`. KSP versions independently of Kotlin; do not apply the old Kotlin-version-prefix matching rule when updating these plugins.
 
-- This is a Kotlin/JVM Gradle project for simulating League of Legends Worlds Swiss-stage outcomes. `Main.kt` loads a YAML resource such as `worlds2025.yml`, parses teams through `TeamLoaderManager`, runs a simulation manager, and prints `SimulationResult` lines.
-- Team data lives in YAML under `src/main/resources` with a top-level `teams` list. Jackson YAML plus the Kotlin module deserialize into `LoadedTeams` and `Team`; `category` values map to the `Category` enum.
-- `SingleThreadedSimManager` is the active simulation path. For each iteration it deep-copies the original teams, creates a `WorldsSwissFormatSchedulerComponent`, runs a `SwissFormatScheduler`, and counts qualified teams by `teamSignature`. Deep copies are important because `Team` instances carry mutable match history.
-- Dependency wiring uses `kotlin-inject` and KSP. `WorldsSwissFormatSchedulerComponent` provides the team list, the default `PureEloSimulation`, the default `NoEloNoRematchRule`, and `endCondition = 3`; callers use the generated `WorldsSwissFormatSchedulerComponent::class.create(...)` function.
-- `SwissFormatScheduler` runs `(2 * endCondition) - 1` Swiss rounds. Each round groups teams by current `WinLossRecord`, creates matches within each record pool, uses best-of-one matches normally, and uses `firstTo = 2` for qualification or elimination pools where wins or losses are `endCondition - 1`.
-- `Match` simulates immediately in its initializer by repeatedly calling an `IGameSimulation` until one side reaches `firstTo`. The scheduler then records the completed match on both participating teams so future matchmaking rules can inspect prior opponents.
-- Matchmaking rules extend `AbstractMatchMakingRule`. The base flow builds a complete `JTournamentGraph`, lets the rule remove forbidden pairings or adjust weights, runs randomized greedy matching, and calls `unblock` until a complete matching is produced. The currently wired rule is `NoEloNoRematchRule`, which only removes rematches.
-- `JTournamentGraph` is the active graph implementation backed by JGraphT. The custom `TournamentGraph`, `MultiThreadedSimManager`, detailed simulation manager, domestic-match rules, and several Elo/domestic variants contain `TODO("Not yet implemented")` and are not on the default execution path.
+## Architecture
 
-## Key conventions
+Top-level dataflow for one simulation run (see `Main.kt`):
 
-- Source files are under `src/main/kotlin`, but packages are rooted at `io.wongaz`; the directory layout does not fully mirror package names.
-- `teamSignature` is the stable team identity used in result maps, output, `Team.toString()`, and several match comparisons. Preserve uniqueness when adding or loading teams.
-- Preserve seed propagation when changing stochastic behavior. The component passes the same `Random` into the game simulation and matchmaking rule, and `JTournamentGraph` passes it to randomized matching.
-- Add new match simulations behind `IGameSimulation`; return one of the two input `Team` objects as the winner.
-- Add new matchmaking behavior by subclassing `AbstractMatchMakingRule` and implementing `removeMatches`, `updateWeights`, and `unblock`. Avoid over-constraining the graph without a real `unblock` strategy, because `generateMatchPairs` loops until it gets a complete matching.
-- Keep match creation centralized through `MatchFactory` so the configured `IGameSimulation` and `firstTo` semantics stay consistent.
-- The repository uses Kotlin official code style (`kotlin.code.style=official` in `gradle.properties`).
+1. `TeamLoaderManager.getTeamsFromStream` parses a YAML resource (e.g. `src/main/resources/worlds2024.yml`) into `List<Team>` via Jackson (`jackson-dataformat-yaml` + `jackson-module-kotlin`). Note: `kotlinx-serialization-json` is on the classpath and `Team` is `@Serializable`, but loading actually goes through Jackson — keep both annotations working if you change the model.
+2. An `AbstractSimManager` runs `iterations` independent tournaments. `Main.kt` uses `MultiThreadedSimManager`, which partitions iterations across coroutine workers on `Dispatchers.Default`, collects qualification counts in worker-local maps, then combines them via `mergeResults`. Keep shared result updates outside the parallel workers. `SingleThreadedSimManager` is also implemented. Each iteration starts from `deepCopyTeams()` because `Team` holds mutable match history.
+3. Per iteration, the manager instantiates a kotlin-inject component: `WorldsSwissFormatSchedulerComponent::class.create(copy).swissFormatScheduler`. Its defaults are `PureEloSimulation` and `NoEloNoRematchRule`. The `create` extension is generated by KSP from the `@Component` annotation — do not write it by hand.
+4. `SwissFormatScheduler.runTournament` simulates rounds 1..(2*endCondition − 1). `endCondition` defaults to 3 (3 wins = qualify, 3 losses = eliminate). For each round it iterates every possible W-L bucket, filters teams via `Team.equalsWinLoss`, and asks the injected `AbstractMatchMakingRule` to pair them. When `wins == endCondition - 1` or `losses == endCondition - 1` it requests Bo3 matches by passing `fto = 2` (otherwise Bo1, `fto = 1`).
+5. `AbstractSimManager.simResults` is keyed by `teamSignature`; the manager increments qualification counts via `updateResults`, and `SimulationResult.makeSimpleResultsLine` produces the output strings printed by `main`.
+
+### Matchmaking pipeline (`tournamentplanner.matchmaking`)
+
+`AbstractMatchMakingRule.generateMatchPairs` is the template method every rule plugs into:
+
+1. Build a complete `ITournamentGraph` over the bucket's teams.
+2. `removeMatches` — subclass strips disallowed edges (e.g. `removeRematches` uses `Team.getPreviousPlayedTeams()`).
+3. `updateWeights` — subclass sets edge weights (used by Elo-aware variants).
+4. `runNodeMatching(seed)` — runs `RandomizedGreedyMaximumCardinalityMatching` (a Kotlin port of JGraphT's greedy max-cardinality matcher, modified to shuffle vertices/edges with an injectable `Random` so seeded runs are reproducible).
+5. If the matching is incomplete (`size != teams.size / 2`), `unblock` is called to relax constraints, then matching re-runs in a loop.
+6. Successful pairs are turned into `Match` objects through the injected `MatchFactory`.
+
+The matching loop has no retry limit. Rules that can make a complete matching impossible need an `unblock` strategy rather than a no-op.
+
+There are **two** `ITournamentGraph` implementations: `JTournamentGraph` (JGraphT-backed, in use) and `TournamentGraph` (a hand-rolled adjacency map, mostly `TODO`). New rules should use `JTournamentGraph` via the interface unless you are deliberately finishing the hand-rolled one.
+
+### Game simulation (`matchsimulation`)
+
+`IGameSimulation.runSingleGameSimulation(team1, team2): Team` returns one of the two input teams as the winner of a single game. `Match` simulates immediately in its initializer; `simulateMatch` loops until one side reaches `firstTo`. The scheduler records the completed match on both teams. Implementations live in `matchsimulation/rules/` (`PureEloSimulation` uses the standard Elo expected-score formula with a seeded `Random`; others bias by side/region/category). Use the `IGameSimulation` interface — do not instantiate concrete simulations from inside rules or schedulers; let kotlin-inject provide them.
+
+### Dependency injection (kotlin-inject)
+
+- Constructor-injected classes are annotated `@Inject` (e.g. `SwissFormatScheduler`, `MatchFactory`, `PureEloSimulation`, rules).
+- Composition roots are `@Component` abstract classes (e.g. `WorldsSwissFormatSchedulerComponent`, `NoEloNoRematchComponent`). Bindings come from constructor params marked `@get:Provides` and from `@Provides` methods (e.g. `endCondition() = 3`).
+- KSP generates a `create` extension on the component's `KClass`: call as `MyComponent::class.create(args)`. After adding/removing a `@Component` or a binding, recompile so the generated code stays in sync.
+- To swap matchmaking rules or sims globally, change the defaults on `WorldsSwissFormatSchedulerComponent`'s constructor rather than editing `SwissFormatScheduler`.
+
+## Conventions
+
+- Package root is `io.wongaz`. Source layout mirrors domains: `model/core` (`Team`, `Match`, `Round`, `Pool`, `WinLossRecord`, `Category`), `model/simulation`, `model/loader`, `tournamentplanner/{scheduler,matchmaking}`, `matchsimulation`, `simulationmanager`, `loader`.
+- Preserve unique `teamSignature` values (e.g. `"HLE"`, `"T1"`): result maps and several match comparisons use them as identity. `Team.hasPlayed` uses data-class equality, which compares constructor fields rather than match history.
+- `Team` is a `data class` but is **mutated** during a tournament (`addMatch` appends to `winningMatches`/`lossMatches`). Always start a run from `deepCopyTeams()` (`.copy()` per team) so iterations don't leak state.
+- Preserve explicit `kotlin.random.Random` propagation through the component, simulation, rule, and graph matcher. The default component shares its `Random` between simulation and matchmaking. The current managers use `Random.Default`; deterministic parallel runs would need explicit per-worker or per-iteration seeds.
+- Bo-format is encoded as `firstTo` on `Match` (Bo1 = `firstTo = 1`, Bo3 = `firstTo = 2`, Bo5 = `firstTo = 3`). The scheduler currently uses Bo1 for opening rounds and Bo3 for qualification/elimination rounds.
+- YAML team files live in `src/main/resources/` and are loaded by classpath path (`getResourceAsStream("/worlds2024.yml")`). New scenarios should follow the same `teams:` schema as `worlds2024.yml` and `basic_worlds.yml`. `Category` must be one of `EASTERN`, `WESTERN`, `WILDCARD`.
+- Several classes are stubs with `TODO("Not yet implemented")`: `TournamentGraph.runNodeMatching`/`removeNode`/`exportGraph`, `NoDomesticNoRematchesRule.*`, and several other rule variants. Treat these as work-in-progress; the default path uses `JTournamentGraph` and `NoEloNoRematchRule`.
+- The repository uses Kotlin official code style (`kotlin.code.style=official` in `gradle.properties`); source directories omit the `io.wongaz` package prefix.

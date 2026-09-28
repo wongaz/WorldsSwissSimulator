@@ -12,6 +12,13 @@ abstract class AbstractSimManager(val teams: List<Team>, protected val iteration
         this.simResults[team.teamSignature]!!.addQualification()
     }
 
+    protected fun mergeResults(qualifiedCounts: Map<String, Int>) {
+        for ((signature, count) in qualifiedCounts) {
+            val result = this.simResults[signature] ?: continue
+            repeat(count) { result.addQualification() }
+        }
+    }
+
     fun getResults(): List<SimulationResult> {
         return simResults.values.toList()
     }

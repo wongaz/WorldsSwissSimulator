@@ -33,8 +33,8 @@ dependencies {
     implementation("org.jgrapht:jgrapht-core:1.5.2")
     implementation("org.jgrapht:jgrapht-io:1.5.2")
 
-    ksp("me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.2")
-    implementation("me.tatarka.inject:kotlin-inject-runtime:0.7.2")
+    ksp("me.tatarka.inject:kotlin-inject-compiler-ksp:0.9.0")
+    implementation("me.tatarka.inject:kotlin-inject-runtime:0.9.0")
 
     testImplementation(kotlin("test"))
 }

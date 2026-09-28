@@ -1,11 +1,20 @@
 plugins {
-    kotlin("jvm") version "2.0.20"
-    id("com.google.devtools.ksp") version "2.0.21-1.0.25"
+    application
+    kotlin("jvm") version "2.3.21"
+    id("com.google.devtools.ksp") version "2.3.12"
 }
 
 
 group = "io.wongaz"
 version = "1.0-SNAPSHOT"
+
+kotlin {
+    jvmToolchain(25)
+}
+
+application {
+    mainClass.set("io.wongaz.MainKt")
+}
 
 repositories {
     mavenCentral()

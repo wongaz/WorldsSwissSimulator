@@ -12,6 +12,7 @@ class Match(val team1: Team,
     private var teamWin2 = 0
 
     init {
+        require(firstTo > 0) { "A match must require at least one win." }
         simulateMatch()
     }
 
@@ -41,7 +42,7 @@ class Match(val team1: Team,
         if(teamWin1 > teamWin2) {
             return team1
         }
-        return team1
+        return team2
     }
 
     fun getLoser(): Team?{

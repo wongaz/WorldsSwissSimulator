@@ -3,7 +3,7 @@ package io.wongaz.model.simulation
 import io.wongaz.model.core.Team
 
 data class SimulationResult(
-    private val team: Team,
+    val team: Team,
     private val iterations: Int){
 
     var qualification = 0.0

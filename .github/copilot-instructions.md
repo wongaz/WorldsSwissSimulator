@@ -1,19 +1,54 @@
 # Copilot Instructions
 
-Monte-Carlo simulator for the League of Legends Worlds Swiss-stage format. Kotlin/JVM, Gradle Kotlin DSL, JDK toolchain, kotlin-inject (KSP) for DI, JGraphT for graph-based matchmaking, Jackson YAML for input.
+Monte-Carlo simulator for the League of Legends Worlds Swiss-stage format. Kotlin/JVM Ktor backend, Kotlin/JS Compose for Web (HTML DOM) client, PostgreSQL via JDBC, Gradle Kotlin DSL, kotlin-inject (KSP) for DI, JGraphT for matchmaking, and Jackson YAML for input.
 
 ## Commands
 
 - Build: `.\gradlew.bat build`
-- Run the simulator: `.\gradlew.bat run`. The application entry point is `io.wongaz.MainKt` in `src\main\kotlin\Main.kt`.
-- Tests: `.\gradlew.bat test` (JUnit Platform via `kotlin("test")`). To run one test class or method: `.\gradlew.bat test --tests "fully.qualified.ClassName"` or `.\gradlew.bat test --tests "fully.qualified.ClassName.methodName"`.
+- Web app: `.\gradlew.bat run` (`io.wongaz.ServerMainKt`), then open `http://localhost:8080`. Set `SIM_DB_PASSWORD` and start the local database with `docker compose up -d --wait`; see `README.md` for connection settings. `SIM_HTTP_PORT` changes the port.
+- Original console simulation without persistence: `.\gradlew.bat runCli` (`io.wongaz.MainKt`).
+- Unit tests: `.\gradlew.bat test` (JUnit 5 and Kotlin test, no Docker). Single class or method: `.\gradlew.bat test --tests "fully.qualified.ClassName"` or `.\gradlew.bat test --tests "fully.qualified.ClassName.methodName"`.
+- Browser state tests: `.\gradlew.bat :web:jsNodeTest`; shared JSON contract tests: `.\gradlew.bat :shared:allTests`. Gradle downloads Node/Yarn. These are included in `check`/`build`.
+- PostgreSQL integration tests: `.\gradlew.bat integrationTest`; use the same `--tests` selectors. This separate source set uses Testcontainers and requires Docker; it does not use the development database. `build` runs unit tests, not integration tests.
 - KSP runs as part of `build`/`compileKotlin`; if generated `create` extension functions go missing from imports (e.g. `io.wongaz.tournamentplanner.create`), do a clean build: `.\gradlew.bat clean build`.
 
 Use JDK 25 and set `JAVA_HOME` to its installation directory before running these commands. The Kotlin/JVM toolchain targets Java 25, and the Gradle 9.3.0 wrapper supports running on JDK 25.
 
 The build uses Kotlin `2.3.21`, KSP `2.3.12` (KSP2), and kotlin-inject `0.9.0`. KSP versions independently of Kotlin; do not apply the old Kotlin-version-prefix matching rule when updating these plugins.
 
+The root `application` plugin owns the backend `run` task; console mode is the
+separate `runCli` JavaExec task. `processResources` depends on `bundleWeb`, which
+copies `:web:jsBrowserDistribution` into generated classpath `web` resources.
+Do not hand-edit generated bundles. The `web` Compose compiler plugin version
+matches Kotlin. Keep the generated Yarn lockfile for repeatable frontend builds.
+
 ## Architecture
+
+The root JVM project contains the backend and simulator. `web` contains the
+Compose HTML client; `shared` contains serializable API DTOs compiled for JVM
+and JS. API IDs and timestamps are strings; JDBC and `java.time` types stay on
+the server. The browser fetches same-origin `/api` JSON endpoints and never
+connects to PostgreSQL directly.
+
+`ServerMain` wires `DefaultRunService` to `PostgresRunRepository`.
+Ktor handlers call blocking `RunService` methods on a background dispatcher.
+Only one simulation request runs at a time; competing launches return 409.
+The server binds to loopback, not a public interface, and rejects cross-origin
+writes. Preserve these defaults unless adding authentication and deployment
+controls deliberately.
+`DefaultRunService` validates the selected dataset and iteration count, runs the
+simulator, snapshots team metadata and results, and returns only after saving.
+PostgreSQL stores completed runs, not in-flight or failed attempts. Run metadata
+and all team results must be saved atomically; database errors must remain visible
+to the UI rather than switching to an in-memory fallback. The repository is
+initialized lazily so the browser can load and show configuration/connection
+errors. Configuration is read from `SIM_DB_URL`, `SIM_DB_USER`, and required
+`SIM_DB_PASSWORD`, never a committed credential.
+
+The dataset registry lives in `DefaultRunService`. Add only complete
+16-team datasets with unique signatures; `basic_worlds.yml` is a single-team
+loader fixture. Historical results contain team snapshots and must not be
+reconstructed from the current YAML files.
 
 Top-level dataflow for one simulation run (see `Main.kt`):
 

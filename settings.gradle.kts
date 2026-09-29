@@ -6,3 +6,5 @@ pluginManagement {
 }
 
 rootProject.name = "LolWorldsSwissSimulation"
+
+include("shared", "web")

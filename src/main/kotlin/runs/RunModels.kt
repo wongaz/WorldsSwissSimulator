@@ -11,7 +11,8 @@ data class RunSummary(
     val datasetId: String,
     val iterations: Int,
     val startedAt: Instant,
-    val completedAt: Instant
+    val completedAt: Instant,
+    val tournamentCount: Int = 0
 )
 
 data class TeamRunResult(

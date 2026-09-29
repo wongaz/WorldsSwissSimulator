@@ -1,7 +1,11 @@
 package io.wongaz.runs
 
+import io.wongaz.api.TournamentDto
 import io.wongaz.loader.TeamLoaderManager
 import io.wongaz.simulationmanager.sims.MultiThreadedSimManager
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.nio.file.Files
 import java.time.Instant
 import java.util.UUID
 
@@ -16,6 +20,11 @@ class DefaultRunService(repositoryFactory: () -> RunRepository) : RunService {
 
     override fun getRun(id: UUID): SavedRun? = repository.findRun(id)
 
+    override fun getTournament(id: UUID, iteration: Int): TournamentDto? {
+        require(iteration in 1..1_000_000) { "Tournament number must be between 1 and 1,000,000." }
+        return repository.findTournament(id, iteration)
+    }
+
     override fun run(datasetId: String, iterations: Int): SavedRun {
         require(datasets.any { it.id == datasetId }) { "Choose a supported team dataset." }
         require(iterations in 1..1_000_000) { "Iterations must be between 1 and 1,000,000." }
@@ -28,20 +37,35 @@ class DefaultRunService(repositoryFactory: () -> RunRepository) : RunService {
         }
         val storage = repository
         val startedAt = Instant.now()
-        val manager = MultiThreadedSimManager(teams, iterations)
-        manager.doWork()
-        val results = manager.getResults().map { result ->
-            val team = result.team
-            TeamRunResult(
-                team.teamSignature, team.teamName, team.region, team.seed,
-                team.category, team.elo, result.qualification.toInt()
+        // Spool details to disk so large runs do not retain millions of tournaments in heap.
+        val spool = Files.createTempFile("swiss-tournaments-", ".jsonl")
+        try {
+            val manager = Files.newBufferedWriter(spool).use { writer ->
+                MultiThreadedSimManager(teams, iterations, onTournament = { iteration, scheduler ->
+                    val line = Json.encodeToString(scheduler.snapshot(iteration))
+                    synchronized(writer) {
+                        writer.write(line)
+                        writer.newLine()
+                    }
+                }).also { it.doWork() }
+            }
+            val results = manager.getResults().map { result ->
+                val team = result.team
+                TeamRunResult(
+                    team.teamSignature, team.teamName, team.region, team.seed,
+                    team.category, team.elo, result.qualification.toInt()
+                )
+            }
+            val run = SavedRun(
+                RunSummary(UUID.randomUUID(), datasetId, iterations, startedAt, Instant.now(), iterations),
+                results
             )
+            Files.newBufferedReader(spool).useLines { lines ->
+                storage.save(run, lines.map { Json.decodeFromString<TournamentDto>(it) })
+            }
+            return run
+        } finally {
+            Files.deleteIfExists(spool)
         }
-        val run = SavedRun(
-            RunSummary(UUID.randomUUID(), datasetId, iterations, startedAt, Instant.now()),
-            results
-        )
-        storage.save(run)
-        return run
     }
 }

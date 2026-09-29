@@ -26,6 +26,7 @@ repositories {
 
 dependencies {
     implementation(project(":shared"))
+    implementation("io.github.cdimascio:dotenv-java:3.2.0")
     implementation("org.postgresql:postgresql:42.7.8")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("io.ktor:ktor-server-netty:3.3.3")

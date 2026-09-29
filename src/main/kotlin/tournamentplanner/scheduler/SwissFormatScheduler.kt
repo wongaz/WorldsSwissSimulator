@@ -67,6 +67,8 @@ class SwissFormatScheduler (
         return this.eliminated.toList()
     }
 
+    fun getRounds(): List<Round> = roundsList.toList()
+
     fun getQualifiedTeams(): List<Team>{
         return this.qualified.toList()
     }

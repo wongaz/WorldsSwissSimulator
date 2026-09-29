@@ -4,6 +4,7 @@ import io.wongaz.api.CreateRunRequest
 import io.wongaz.api.DatasetDto
 import io.wongaz.api.RunSummaryDto
 import io.wongaz.api.SavedRunDto
+import io.wongaz.api.TournamentDto
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,11 +16,14 @@ interface HttpRunApi {
     suspend fun history(): List<RunSummaryDto>
     suspend fun savedRun(id: String): SavedRunDto
     suspend fun createRun(request: CreateRunRequest): SavedRunDto
+    suspend fun tournament(id: String, iteration: Int): TournamentDto
 }
 
 class RunApiException(message: String, val status: Int? = null) : Exception(message)
 
-enum class Activity { IDLE, LOADING, REFRESHING, OPENING, RUNNING }
+enum class Activity { IDLE, LOADING, REFRESHING, OPENING, RUNNING, TOURNAMENT }
+
+enum class RunView { SIMULATION, TOURNAMENT }
 
 data class RunScreen(
     val datasets: List<DatasetDto> = emptyList(),
@@ -27,6 +31,11 @@ data class RunScreen(
     val iterationsText: String = "10000",
     val history: List<RunSummaryDto> = emptyList(),
     val selectedRun: SavedRunDto? = null,
+    val view: RunView = RunView.SIMULATION,
+    val tournament: TournamentDto? = null,
+    val tournamentPage: Int = 1,
+    val tournamentNumberText: String = "1",
+    val tournamentError: String? = null,
     val activity: Activity = Activity.IDLE,
     val error: String? = null,
     val notice: String? = null
@@ -49,6 +58,62 @@ class RunController(private val api: HttpRunApi) {
     fun setIterations(value: String) {
         if (!screen.value.busy) {
             mutableScreen.value = screen.value.copy(iterationsText = value, error = null, notice = null)
+        }
+    }
+
+    fun setTournamentNumber(value: String) {
+        if (!screen.value.busy) {
+            mutableScreen.value = screen.value.copy(tournamentNumberText = value, tournamentError = null)
+        }
+    }
+
+    fun showSimulation() {
+        if (!screen.value.busy) {
+            mutableScreen.value = screen.value.copy(view = RunView.SIMULATION)
+        }
+    }
+
+    suspend fun showTournamentViewer() = action(Activity.TOURNAMENT) {
+        val run = screen.value.selectedRun ?: return@action
+        mutableScreen.value = screen.value.copy(view = RunView.TOURNAMENT)
+        if (run.summary.tournamentCount > 0 && screen.value.tournament == null) {
+            loadTournament(run, screen.value.tournamentPage)
+        }
+    }
+
+    suspend fun openTournament(number: Int? = null) = action(Activity.TOURNAMENT) {
+        val run = screen.value.selectedRun ?: return@action
+        val iteration = number ?: screen.value.tournamentNumberText.trim().toIntOrNull()
+        if (iteration == null || iteration !in 1..run.summary.tournamentCount) {
+            mutableScreen.value = screen.value.copy(
+                tournamentError = "Enter a tournament number from 1 to ${run.summary.tournamentCount}."
+            )
+            return@action
+        }
+        loadTournament(run, iteration)
+    }
+
+    private fun selectRun(run: SavedRunDto) {
+        mutableScreen.value = screen.value.copy(
+            selectedRun = run, view = RunView.SIMULATION, tournament = null,
+            tournamentPage = 1, tournamentNumberText = "1", tournamentError = null
+        )
+    }
+
+    private suspend fun loadTournament(run: SavedRunDto, iteration: Int) {
+        mutableScreen.value = screen.value.copy(
+            view = RunView.TOURNAMENT, tournament = null, tournamentPage = iteration,
+            tournamentNumberText = iteration.toString(), tournamentError = null
+        )
+        try {
+            val tournament = api.tournament(run.summary.id, iteration)
+            check(tournament.iteration == iteration) { "Unexpected tournament response." }
+            mutableScreen.value = screen.value.copy(tournament = tournament)
+        } catch (error: Exception) {
+            error.rethrowCancellation()
+            mutableScreen.value = screen.value.copy(
+                tournamentError = error.safeMessage("Tournament details could not be loaded. Use View tournament to retry.")
+            )
         }
     }
 
@@ -83,7 +148,7 @@ class RunController(private val api: HttpRunApi) {
     suspend fun openRun(id: String) = action(Activity.OPENING) {
         try {
             val run = api.savedRun(id)
-            mutableScreen.value = screen.value.copy(selectedRun = run)
+            selectRun(run)
         } catch (error: Exception) {
             error.rethrowCancellation()
             mutableScreen.value = screen.value.copy(error = error.safeMessage("This saved run could not be opened."))
@@ -105,10 +170,10 @@ class RunController(private val api: HttpRunApi) {
         try {
             val saved = api.createRun(CreateRunRequest(current.datasetId, iterations!!))
             mutableScreen.value = screen.value.copy(
-                selectedRun = saved,
                 history = (listOf(saved.summary) + screen.value.history.filterNot { it.id == saved.summary.id }).take(100),
                 notice = "Simulation completed and saved to the database."
             )
+            selectRun(saved)
         } catch (error: Exception) {
             error.rethrowCancellation()
             val message = if (error is RunApiException && error.status != null) {
@@ -139,4 +204,10 @@ class RunController(private val api: HttpRunApi) {
 
     private fun Exception.safeMessage(fallback: String): String =
         (this as? RunApiException)?.message?.takeIf { it.isNotBlank() } ?: fallback
+}
+
+internal fun tournamentPages(current: Int, total: Int): List<Int> {
+    if (total <= 0) return emptyList()
+    val start = (current - 2).coerceAtLeast(1).coerceAtMost((total - 4).coerceAtLeast(1))
+    return (listOf(1) + (start..minOf(start + 4, total)) + total).distinct().sorted()
 }

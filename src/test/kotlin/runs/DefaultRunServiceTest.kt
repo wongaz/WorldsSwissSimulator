@@ -1,6 +1,8 @@
 package io.wongaz.runs
 
+import io.wongaz.api.TournamentDto
 import io.wongaz.loader.TeamLoaderManager
+import io.wongaz.support.assertTournament
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import java.sql.SQLException
@@ -77,6 +79,15 @@ class DefaultRunServiceTest {
         assertEquals(16, run.results.size)
         assertEquals(16, run.results.map { it.teamSignature }.distinct().size)
         assertEquals(24, run.results.sumOf { it.qualifications })
+        assertEquals(3, run.summary.tournamentCount)
+        val tournaments = (1..3).map { assertNotNull(service.getTournament(run.summary.id, it)) }
+        assertEquals(listOf(1, 2, 3), tournaments.map { it.iteration })
+        tournaments.forEach { assertTournament(it, run.results.map { team -> team.teamSignature }.toSet()) }
+        val qualifications = tournaments.flatMap { it.qualified }.groupingBy { it.teamSignature }.eachCount()
+        run.results.forEach { assertEquals(it.qualifications, qualifications[it.teamSignature] ?: 0) }
+        assertNull(service.getTournament(run.summary.id, 4))
+        assertNull(service.getTournament(UUID.randomUUID(), 1))
+        assertFailsWith<IllegalArgumentException> { service.getTournament(run.summary.id, 0) }
         val teams = assertNotNull(javaClass.getResourceAsStream("/worlds2024.yml")).use {
             TeamLoaderManager().getTeamsFromStream(it)
         }.associateBy { it.teamSignature }
@@ -142,6 +153,7 @@ class DefaultRunServiceTest {
         private val readFailure: SQLException? = null
     ) : RunRepository {
         val saved = mutableListOf<SavedRun>()
+        val details = mutableMapOf<Pair<UUID, Int>, TournamentDto>()
         var initializations = 0
         var saveAttempts = 0
         var lastLimit: Int? = null
@@ -151,11 +163,17 @@ class DefaultRunServiceTest {
             initializationFailure?.let { throw it }
         }
 
-        override fun save(run: SavedRun) {
+        override fun save(run: SavedRun, tournaments: Sequence<TournamentDto>) {
             check(initializations == 1)
             saveAttempts++
             saveFailure?.let { throw it }
+            tournaments.forEach { details[run.summary.id to it.iteration] = it }
             saved += run
+        }
+
+        override fun findTournament(id: UUID, iteration: Int): TournamentDto? {
+            readFailure?.let { throw it }
+            return details[id to iteration]
         }
 
         override fun listRuns(limit: Int): List<RunSummary> {

@@ -16,6 +16,7 @@ import io.wongaz.api.ApiError
 import io.wongaz.api.DatasetDto
 import io.wongaz.api.RunSummaryDto
 import io.wongaz.api.SavedRunDto
+import io.wongaz.api.TournamentDto
 import io.wongaz.model.core.Category
 import io.wongaz.runs.DatasetOption
 import io.wongaz.runs.DefaultRunService
@@ -42,6 +43,29 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class SimulatorModuleTest {
+    @Test
+    fun `tournament endpoint selects one iteration and rejects invalid or missing details`() = testApplication {
+        val client = localClient()
+        val service = FakeService()
+        application { simulatorModule(service) }
+        val base = "/api/runs/${service.saved.summary.id}/tournaments"
+        val response = client.get("$base/2")
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals(service.tournament, Json.decodeFromString<TournamentDto>(response.bodyAsText()))
+        for (number in listOf("0", "-1", "1.5", "x", "1000001", "9999999999999")) {
+            assertEquals(HttpStatusCode.BadRequest, client.get("$base/$number").status)
+        }
+        for (number in listOf(1, 3, 1_000_000)) {
+            assertEquals(HttpStatusCode.NotFound, client.get("$base/$number").status)
+        }
+        assertEquals(HttpStatusCode.BadRequest, client.get("/api/runs/1-1-1-1-1/tournaments/1").status)
+        assertEquals(HttpStatusCode.NotFound, client.get("/api/runs/${UUID.randomUUID()}/tournaments/2").status)
+        service.tournamentFailure = SQLException(secret)
+        val failure = client.get("$base/2")
+        assertEquals(HttpStatusCode.ServiceUnavailable, failure.status)
+        assertFalse(failure.bodyAsText().contains(secret))
+    }
+
     @Test
     fun `datasets work without creating a database repository`() = testApplication {
         val client = localClient()
@@ -302,10 +326,16 @@ class SimulatorModuleTest {
             listOf(TeamRunResult("T1", "T1", "LCK", 1, Category.EASTERN, 2100, 2))
         )
         val runCalls = AtomicInteger()
+        val tournament = TournamentDto(2, emptyList(), emptyList(), emptyList())
+        var tournamentFailure: SQLException? = null
         var onList: () -> List<RunSummary> = { listOf(saved.summary) }
         var onRun: () -> SavedRun = { saved }
         override fun listRuns() = onList()
         override fun getRun(id: UUID) = saved.takeIf { it.summary.id == id }
+        override fun getTournament(id: UUID, iteration: Int): TournamentDto? {
+            tournamentFailure?.let { throw it }
+            return tournament.takeIf { id == saved.summary.id && iteration == 2 }
+        }
         override fun run(datasetId: String, iterations: Int): SavedRun {
             runCalls.incrementAndGet()
             return onRun()

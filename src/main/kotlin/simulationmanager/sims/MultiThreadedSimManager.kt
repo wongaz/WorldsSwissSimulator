@@ -4,6 +4,7 @@ import io.wongaz.model.core.Team
 import io.wongaz.simulationmanager.interfaces.AbstractSimManager
 import io.wongaz.tournamentplanner.WorldsSwissFormatSchedulerComponent
 import io.wongaz.tournamentplanner.create
+import io.wongaz.tournamentplanner.scheduler.SwissFormatScheduler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -12,7 +13,9 @@ import kotlinx.coroutines.runBlocking
 class MultiThreadedSimManager(
     teams: List<Team>,
     iterations: Int = 10_000,
-    private val workerCount: Int = Runtime.getRuntime().availableProcessors()
+    private val workerCount: Int = Runtime.getRuntime().availableProcessors(),
+    // Called concurrently, once per actual iteration, with a one-based identifier.
+    private val onTournament: ((Int, SwissFormatScheduler) -> Unit)? = null
 ) : AbstractSimManager(teams, iterations) {
 
     override fun doWork() = runBlocking(Dispatchers.Default) {
@@ -33,6 +36,7 @@ class MultiThreadedSimManager(
                     for (team in scheduler.getQualifiedTeams()) {
                         localCounts.merge(team.teamSignature, 1, Int::plus)
                     }
+                    onTournament?.invoke(i + 1, scheduler)
                 }
                 localCounts
             }

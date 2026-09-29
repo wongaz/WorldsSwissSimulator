@@ -9,6 +9,23 @@ import kotlin.test.assertFailsWith
 
 class RunDtosTest {
     @Test
+    fun tournamentRoundTripPreservesGroupsScoresAndTerminalRecords() {
+        val tournament = TournamentDto(
+            1_000_000,
+            listOf(TournamentRoundDto(5, listOf(PairingGroupDto(
+                2, 2, listOf(PairingDto("T1", "GEN", 2, 1, 2))
+            )))),
+            listOf(TeamStandingDto("T1", 3, 2)),
+            listOf(TeamStandingDto("GEN", 2, 3))
+        )
+        assertEquals(tournament, Json.decodeFromString<TournamentDto>(Json.encodeToString(tournament)))
+        val summary = RunSummaryDto("id", "worlds2024.yml", 10, "start", "end", 10)
+        assertEquals(summary, Json.decodeFromString<RunSummaryDto>(Json.encodeToString(summary)))
+        val legacy = """{"id":"id","datasetId":"worlds2024.yml","iterations":10,"startedAt":"start","completedAt":"end"}"""
+        assertEquals(0, Json.decodeFromString<RunSummaryDto>(legacy).tournamentCount)
+    }
+
+    @Test
     fun savedRunPreservesTeamSnapshotAcrossJsonRoundTrip() {
         val run = SavedRunDto(
             RunSummaryDto(

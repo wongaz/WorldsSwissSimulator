@@ -1,10 +1,13 @@
 package io.wongaz.persistence
 
+import io.wongaz.api.TournamentDto
 import io.wongaz.model.core.Category
 import io.wongaz.runs.RunRepository
 import io.wongaz.runs.RunSummary
 import io.wongaz.runs.SavedRun
 import io.wongaz.runs.TeamRunResult
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.ResultSet
@@ -28,12 +31,12 @@ class PostgresRunRepository(private val config: DatabaseConfig) : RunRepository 
         }
     }
 
-    override fun save(run: SavedRun) {
+    override fun save(run: SavedRun, tournaments: Sequence<TournamentDto>) {
         transaction { connection ->
             connection.prepareStatement(
                 """
-                INSERT INTO simulation_runs (id, dataset_id, iterations, started_at, completed_at)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO simulation_runs (id, dataset_id, iterations, started_at, completed_at, tournament_count)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """.trimIndent()
             ).use { statement ->
                 statement.setObject(1, run.summary.id)
@@ -41,6 +44,7 @@ class PostgresRunRepository(private val config: DatabaseConfig) : RunRepository 
                 statement.setInt(3, run.summary.iterations)
                 statement.setObject(4, run.summary.startedAt.atOffset(ZoneOffset.UTC))
                 statement.setObject(5, run.summary.completedAt.atOffset(ZoneOffset.UTC))
+                statement.setInt(6, run.summary.tournamentCount)
                 statement.executeUpdate()
             }
 
@@ -68,6 +72,28 @@ class PostgresRunRepository(private val config: DatabaseConfig) : RunRepository 
                 }
                 statement.executeBatch()
             }
+
+            connection.prepareStatement(
+                "INSERT INTO tournament_results (run_id, iteration, detail) VALUES (?, ?, ?::jsonb)"
+            ).use { statement ->
+                var count = 0
+                tournaments.forEach { tournament ->
+                    require(tournament.iteration in 1..run.summary.tournamentCount) {
+                        "Tournament number is outside the run's recorded range."
+                    }
+                    statement.setObject(1, run.summary.id)
+                    statement.setInt(2, tournament.iteration)
+                    statement.setString(3, Json.encodeToString(tournament))
+                    statement.addBatch()
+                    count++
+                    if (count % 100 == 0) {
+                        statement.executeBatch()
+                        statement.clearBatch()
+                    }
+                }
+                if (count % 100 != 0) statement.executeBatch()
+                require(count == run.summary.tournamentCount) { "Every tournament must be saved." }
+            }
         }
     }
 
@@ -76,7 +102,7 @@ class PostgresRunRepository(private val config: DatabaseConfig) : RunRepository 
         return connection().use { connection ->
             connection.prepareStatement(
                 """
-                SELECT id, dataset_id, iterations, started_at, completed_at
+                SELECT id, dataset_id, iterations, started_at, completed_at, tournament_count
                 FROM simulation_runs
                 ORDER BY completed_at DESC, id DESC
                 LIMIT ?
@@ -95,7 +121,7 @@ class PostgresRunRepository(private val config: DatabaseConfig) : RunRepository 
     override fun findRun(id: UUID): SavedRun? = connection().use { connection ->
         val summary = connection.prepareStatement(
             """
-            SELECT id, dataset_id, iterations, started_at, completed_at
+            SELECT id, dataset_id, iterations, started_at, completed_at, tournament_count
             FROM simulation_runs
             WHERE id = ?
             """.trimIndent()
@@ -136,6 +162,18 @@ class PostgresRunRepository(private val config: DatabaseConfig) : RunRepository 
         SavedRun(summary, results)
     }
 
+    override fun findTournament(id: UUID, iteration: Int): TournamentDto? = connection().use { connection ->
+        connection.prepareStatement(
+            "SELECT detail FROM tournament_results WHERE run_id = ? AND iteration = ?"
+        ).use { statement ->
+            statement.setObject(1, id)
+            statement.setInt(2, iteration)
+            statement.executeQuery().use { rows ->
+                if (rows.next()) Json.decodeFromString<TournamentDto>(rows.getString("detail")) else null
+            }
+        }
+    }
+
     private fun connection(): Connection {
         val properties = Properties().apply {
             setProperty("user", config.user)
@@ -154,10 +192,8 @@ class PostgresRunRepository(private val config: DatabaseConfig) : RunRepository 
             val result = block(connection)
             connection.commit()
             result
-        } catch (failure: SQLException) {
-            rollback(connection, failure)
-            throw failure
-        } catch (failure: IllegalArgumentException) {
+        } catch (failure: Exception) {
+            // Streaming details can also fail on file reads or decoding; never commit a partial run.
             rollback(connection, failure)
             throw failure
         }
@@ -176,6 +212,7 @@ class PostgresRunRepository(private val config: DatabaseConfig) : RunRepository 
         datasetId = getString("dataset_id"),
         iterations = getInt("iterations"),
         startedAt = getObject("started_at", OffsetDateTime::class.java).toInstant(),
-        completedAt = getObject("completed_at", OffsetDateTime::class.java).toInstant()
+        completedAt = getObject("completed_at", OffsetDateTime::class.java).toInstant(),
+        tournamentCount = getInt("tournament_count")
     )
 }

@@ -13,6 +13,7 @@ import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
 import io.wongaz.api.RunSummaryDto
 import io.wongaz.api.SavedRunDto
+import io.wongaz.api.TournamentDto
 import io.wongaz.persistence.DatabaseConfig
 import io.wongaz.persistence.PostgresRunRepository
 import io.wongaz.runs.DefaultRunService
@@ -59,6 +60,23 @@ class PostgresApiIntegrationTest {
             assertEquals(saved.summary.id, loaded.summary.id)
             assertEquals("worlds2024.yml", loaded.summary.datasetId)
             assertEquals(4, loaded.summary.iterations)
+            assertEquals(4, loaded.summary.tournamentCount)
+            val tournaments = (1..4).map { iteration ->
+                val response = client.get("/api/runs/${saved.summary.id}/tournaments/$iteration")
+                assertEquals(HttpStatusCode.OK, response.status)
+                Json.decodeFromString<TournamentDto>(response.bodyAsText()).also {
+                    assertEquals(iteration, it.iteration)
+                    assertEquals(listOf(1, 2, 3, 4, 5), it.rounds.map { round -> round.number })
+                    assertEquals(8, it.qualified.size)
+                    assertEquals(8, it.eliminated.size)
+                }
+            }
+            val counts = tournaments.flatMap { it.qualified }.groupingBy { it.teamSignature }.eachCount()
+            loaded.results.forEach { assertEquals(it.qualifications, counts[it.teamSignature] ?: 0) }
+            assertEquals(
+                HttpStatusCode.NotFound,
+                client.get("/api/runs/${saved.summary.id}/tournaments/5").status
+            )
             for ((original, reloaded) in listOf(
                 saved.summary.startedAt to loaded.summary.startedAt,
                 saved.summary.completedAt to loaded.summary.completedAt

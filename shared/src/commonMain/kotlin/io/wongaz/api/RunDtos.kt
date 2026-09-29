@@ -14,7 +14,8 @@ data class RunSummaryDto(
     val datasetId: String,
     val iterations: Int,
     val startedAt: String,
-    val completedAt: String
+    val completedAt: String,
+    val tournamentCount: Int = 0
 )
 
 @Serializable
@@ -32,6 +33,32 @@ data class TeamResultDto(
 
 @Serializable
 data class SavedRunDto(val summary: RunSummaryDto, val results: List<TeamResultDto>)
+
+@Serializable
+data class TournamentDto(
+    val iteration: Int,
+    val rounds: List<TournamentRoundDto>,
+    val qualified: List<TeamStandingDto>,
+    val eliminated: List<TeamStandingDto>
+)
+
+@Serializable
+data class TournamentRoundDto(val number: Int, val groups: List<PairingGroupDto>)
+
+@Serializable
+data class PairingGroupDto(val wins: Int, val losses: Int, val matches: List<PairingDto>)
+
+@Serializable
+data class PairingDto(
+    val team1: String,
+    val team2: String,
+    val team1Wins: Int,
+    val team2Wins: Int,
+    val firstTo: Int
+)
+
+@Serializable
+data class TeamStandingDto(val teamSignature: String, val wins: Int, val losses: Int)
 
 @Serializable
 data class ApiError(val message: String)

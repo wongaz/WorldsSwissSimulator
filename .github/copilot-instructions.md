@@ -6,6 +6,7 @@ Monte-Carlo simulator for the League of Legends Worlds Swiss-stage format. Kotli
 
 - Build: `.\gradlew.bat build`
 - Web app: `.\gradlew.bat run` (`io.wongaz.ServerMainKt`), then open `http://localhost:8080`. Set `SIM_DB_PASSWORD` and start the local database with `docker compose up -d --wait`; see `README.md` for connection settings. `SIM_HTTP_PORT` changes the port.
+- Data exploration: `.\scripts\Initialize-SupersetEnv.ps1`, then `docker compose --profile analytics up -d --build --wait`. Superset runs at `http://localhost:8088` with the preconfigured read-only `Worlds Swiss` connection; credentials stay in ignored `.env`.
 - Original console simulation without persistence: `.\gradlew.bat runCli` (`io.wongaz.MainKt`).
 - Unit tests: `.\gradlew.bat test` (JUnit 5 and Kotlin test, no Docker). Single class or method: `.\gradlew.bat test --tests "fully.qualified.ClassName"` or `.\gradlew.bat test --tests "fully.qualified.ClassName.methodName"`.
 - Browser state tests: `.\gradlew.bat :web:jsNodeTest`; shared JSON contract tests: `.\gradlew.bat :shared:allTests`. Gradle downloads Node/Yarn. These are included in `check`/`build`.
@@ -43,7 +44,15 @@ and all team results must be saved atomically; database errors must remain visib
 to the UI rather than switching to an in-memory fallback. The repository is
 initialized lazily so the browser can load and show configuration/connection
 errors. Configuration is read from `SIM_DB_URL`, `SIM_DB_USER`, and required
-`SIM_DB_PASSWORD`, never a committed credential.
+`SIM_DB_PASSWORD`, never a committed credential. Process environment variables
+override the local working-directory `.env`; `ServerMain` uses
+`DatabaseConfig.fromLocalEnvironment()` lazily. Launch from the repository root
+to share Docker Compose's `.env`. `SIM_HTTP_PORT` remains process-environment-only.
+
+The optional Compose `analytics` profile initializes a dedicated PostgreSQL
+`superset_reader` role with SELECT grants on current/future simulator tables.
+Superset's local-only SQLite metadata lives in its own `superset_data` volume;
+do not mix charts/users with simulator tables or delete volumes during setup.
 
 The dataset registry lives in `DefaultRunService`. Add only complete
 16-team datasets with unique signatures; `basic_worlds.yml` is a single-team

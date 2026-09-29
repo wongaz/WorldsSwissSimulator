@@ -37,7 +37,10 @@ private fun Simulator(controller: RunController, screen: RunScreen) {
             }
             Span(attrs = { classes("hero-badge") }) { Text("Kotlin · Compose for Web") }
         }
-        Div(attrs = { classes("workspace") }) {
+        val selectedRun = screen.selectedRun
+        if (screen.view == RunView.TOURNAMENT && selectedRun != null) {
+            TournamentView(controller, screen, selectedRun)
+        } else Div(attrs = { classes("workspace") }) {
             Aside(attrs = { classes("sidebar"); attr("aria-label", "Simulation controls and saved history") }) {
                 Section(attrs = { classes("panel", "controls"); attr("aria-labelledby", "configure-heading") }) {
                     P(attrs = { classes("eyebrow") }) { Text("NEW SIMULATION") }
@@ -71,6 +74,9 @@ private fun Simulator(controller: RunController, screen: RunScreen) {
                     })
                     P(attrs = { id("iteration-help"); classes("help") }) {
                         Text("1–1,000,000 simulations. More iterations give steadier estimates and take longer.")
+                    }
+                    P(attrs = { classes("help") }) {
+                        Text("Every tournament's pairings and scores are saved. Large runs require substantial disk space and database storage; start small when exploring.")
                     }
                     Button(attrs = {
                         id("run-simulation")
@@ -134,6 +140,7 @@ private fun Simulator(controller: RunController, screen: RunScreen) {
                                     Activity.RUNNING -> "Simulating and saving…"
                                     Activity.OPENING -> "Opening saved snapshot…"
                                     Activity.REFRESHING -> "Refreshing datasets and history…"
+                                    Activity.TOURNAMENT -> "Loading tournament pairings…"
                                     else -> "Loading datasets and history…"
                                 })
                             }
@@ -176,7 +183,9 @@ private fun Simulator(controller: RunController, screen: RunScreen) {
                         }
                     }
                 } else {
-                    Results(saved, screen)
+                    Results(saved, screen, onBrowseTournaments = {
+                        scope.launch { controller.showTournamentViewer() }
+                    })
                 }
             }
         }
@@ -185,7 +194,7 @@ private fun Simulator(controller: RunController, screen: RunScreen) {
 }
 
 @Composable
-private fun Results(saved: SavedRunDto, screen: RunScreen) {
+private fun Results(saved: SavedRunDto, screen: RunScreen, onBrowseTournaments: () -> Unit) {
     Section(attrs = {
         id("saved-snapshot")
         classes("panel", "results")
@@ -197,7 +206,15 @@ private fun Results(saved: SavedRunDto, screen: RunScreen) {
                 P(attrs = { classes("eyebrow") }) { Text("SAVED SNAPSHOT") }
                 H2(attrs = { id("results-heading") }) { Text(datasetLabel(saved.summary.datasetId, screen)) }
             }
-            Span(attrs = { classes("saved-badge") }) { Text("Saved to database") }
+            Div(attrs = { classes("snapshot-actions") }) {
+                Span(attrs = { classes("saved-badge") }) { Text("Saved to database") }
+                Button(attrs = {
+                    id("open-tournaments")
+                    classes("button", "secondary")
+                    if (screen.busy) disabled()
+                    onClick { onBrowseTournaments() }
+                }) { Text("Browse tournaments") }
+            }
         }
         Div(attrs = { classes("metrics") }) {
             Metric("Iterations", grouped(saved.summary.iterations))

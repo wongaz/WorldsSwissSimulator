@@ -5,6 +5,7 @@ import io.wongaz.api.CreateRunRequest
 import io.wongaz.api.DatasetDto
 import io.wongaz.api.RunSummaryDto
 import io.wongaz.api.SavedRunDto
+import io.wongaz.api.TournamentDto
 import kotlinx.browser.window
 import kotlinx.coroutines.await
 import kotlinx.serialization.encodeToString
@@ -33,6 +34,12 @@ class BrowserRunApi : HttpRunApi {
         return json.decodeFromString(
             send("/api/runs", RequestInit(method = "POST", headers = headers, body = json.encodeToString(request)))
         )
+    }
+
+    override suspend fun tournament(id: String, iteration: Int): TournamentDto {
+        require(id.matches(Regex("[a-zA-Z0-9-]+"))) { "Invalid saved run identifier." }
+        require(iteration in 1..1_000_000) { "Invalid tournament number." }
+        return get("/api/runs/$id/tournaments/$iteration")
     }
 
     private suspend inline fun <reified T> get(path: String): T =

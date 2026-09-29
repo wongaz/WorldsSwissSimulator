@@ -11,6 +11,10 @@ class Match(val team1: Team,
     private var teamWin1 = 0
     private var teamWin2 = 0
 
+    fun getTeam1Wins(): Int = teamWin1
+
+    fun getTeam2Wins(): Int = teamWin2
+
     init {
         require(firstTo > 0) { "A match must require at least one win." }
         simulateMatch()

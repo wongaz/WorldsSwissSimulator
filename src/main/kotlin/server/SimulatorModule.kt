@@ -53,7 +53,7 @@ fun Application.simulatorModule(service: RunService) {
         exception<RunConfigurationException> { call, _ ->
             call.respond(
                 HttpStatusCode.ServiceUnavailable,
-                ApiError("Check SIM_DB_URL, SIM_DB_USER, and SIM_DB_PASSWORD before using run history.")
+                ApiError("Check SIM_DB_URL, SIM_DB_USER, and SIM_DB_PASSWORD in the server environment or local .env file. Ensure .env is readable and correctly formatted.")
             )
         }
         exception<SQLException> { call, cause ->
@@ -118,6 +118,26 @@ fun Application.simulatorModule(service: RunService) {
                     call.respond(HttpStatusCode.NotFound, ApiError("Run not found."))
                 } else {
                     call.respond(run)
+                }
+            }
+            get("/runs/{id}/tournaments/{iteration}") {
+                val rawId = call.parameters["id"].orEmpty()
+                val id = try {
+                    UUID.fromString(rawId).also { require(it.toString().equals(rawId, ignoreCase = true)) }
+                } catch (_: IllegalArgumentException) {
+                    call.respond(HttpStatusCode.BadRequest, ApiError("Run ID must be a UUID."))
+                    return@get
+                }
+                val iteration = call.parameters["iteration"]?.toIntOrNull()
+                if (iteration == null || iteration !in 1..1_000_000) {
+                    call.respond(HttpStatusCode.BadRequest, ApiError("Tournament number must be between 1 and 1,000,000."))
+                    return@get
+                }
+                val tournament = withContext(Dispatchers.IO) { service.getTournament(id, iteration) }
+                if (tournament == null) {
+                    call.respond(HttpStatusCode.NotFound, ApiError("Tournament details were not found for this run."))
+                } else {
+                    call.respond(tournament)
                 }
             }
             post("/runs") {
@@ -212,7 +232,7 @@ private fun sameOrigin(call: ApplicationCall, authority: URI): Boolean {
 }
 
 private fun RunSummary.toDto() = RunSummaryDto(
-    id.toString(), datasetId, iterations, startedAt.toString(), completedAt.toString()
+    id.toString(), datasetId, iterations, startedAt.toString(), completedAt.toString(), tournamentCount
 )
 
 private fun SavedRun.toDto() = SavedRunDto(summary.toDto(), results.map {

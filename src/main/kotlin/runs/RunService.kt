@@ -1,5 +1,6 @@
 package io.wongaz.runs
 
+import io.wongaz.api.TournamentDto
 import java.util.UUID
 
 class RunConfigurationException(message: String) : IllegalArgumentException(message)
@@ -12,5 +13,6 @@ interface RunService {
     val datasets: List<DatasetOption>
     fun listRuns(): List<RunSummary>
     fun getRun(id: UUID): SavedRun?
+    fun getTournament(id: UUID, iteration: Int): TournamentDto?
     fun run(datasetId: String, iterations: Int): SavedRun
 }
